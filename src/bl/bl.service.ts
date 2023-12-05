@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository,SelectQueryBuilder } from 'typeorm';
+import { DataSource, Repository,SelectQueryBuilder, getRepository } from 'typeorm';
 import { Bl } from './Bl.entity';
 import { CreateBlDto } from './DTO/CreateBl.dto';
 
@@ -15,7 +15,6 @@ import * as crypto from 'crypto';
 
 @Injectable()
 export class BlService {
-  [x: string]: any;
     //private readonly Bl:Bl[] = [];
 
     // Comunication with databse
@@ -66,7 +65,8 @@ export class BlService {
     
         // Update the Destinataire with the new Bl
        
-        return this.blRepository.save(newBonDeLiv);
+        const bl=await this.blRepository.save(newBonDeLiv);
+        return bl.id ; 
       }
 
     // find All BLs
@@ -101,12 +101,16 @@ export class BlService {
         const colisId=await this.colisRepository.findOne(bl.colis)
         return 
       }*/
-
-      async findBlByUserId(userId: number): Promise<Bl[]> {
-        return this.createQueryBuilder('bl')
-          .innerJoin('bl.user', 'user')
-          .where('user.id = :userId', { userId })
-          .getMany();
+      async findUserByBlId(blId: number): Promise<User | null> {
+        const user = await this.userRepository
+          .createQueryBuilder('user')
+          .leftJoinAndSelect('user.bonDeLiv', 'bl')
+          .where('bl.id = :blId', { blId })
+          .getOne();
+    
+        return user || null;
       }
+  }
+        
    
-} 
+

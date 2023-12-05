@@ -40,4 +40,9 @@ export class BlController {
      return this.BlService.findColisByBlId(id);
     }*/
 
+    @Get(':id/User')
+    async findUserByUserId(@Param('id')userId: number){
+        return this.BlService.findUserByBlId(userId)
+    }
+
 }

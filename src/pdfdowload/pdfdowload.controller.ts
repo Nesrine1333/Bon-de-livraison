@@ -84,8 +84,8 @@ export class PdfdownloadController {
     async generatePdf(@Param('idBl') idBl: number, @Res() res: Response) {
         try {
 
-        const user = await this.authService.findOneById(idBl);
-        const bl=await this.BlService.findOne(idBl);
+        const bl = await this.BlService.findOne(idBl);
+        const user=await this.BlService.findUserByBlId(idBl);
       
 
 
@@ -113,10 +113,17 @@ export class PdfdownloadController {
         const xCenter = pdfDoc.page.width / 2;
         const yCenter = pdfDoc.y;
         
+
+        const formattedDate = bl.dateBl.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        });
+
         pdfDoc
           
           .text(`Bon de Livraison No: ${bl.reference}`, { align: 'center', ...textOptions })
-          .text(`Date d'enlévement:${bl.dateBl}`, { align: 'center',continued:true, ...textOptions })
+          .text(`Date d'enlévement:${formattedDate}`, { align: 'center',continued:true, ...textOptions })
           .image(imagePath, xUpperRight, yUpperRight, { width: 100 })
           .text(' ',{align:'center'})
           .moveDown();
@@ -176,6 +183,12 @@ export class PdfdownloadController {
           // requires 
         const table = {
            title: "Details",
+           divider: {
+             header: { disabled: false},
+             horizontal: { disabled: false, width: 1, opacity: 1 },
+             padding: 5,
+             columnSpacing: 10,
+           },
            headers: [
             { label: "Description",headerColor:"#1765d1", headerOpacity:1  },
             { label: "Prix" ,headerColor:"#1765d1", headerOpacity:1},
@@ -201,7 +214,7 @@ export class PdfdownloadController {
          }); 
 
          pdfDoc.fontSize(7)  
-          .text(`Total Piéces= numero`, { align: 'left',
+          .text(`Total Piéces= ${bl.quantite}`, { align: 'left',
           })
           .moveDown();
         
@@ -222,7 +235,7 @@ export class PdfdownloadController {
 
           pdfDoc.fontSize(9)
           .font('Helvetica')
-          .text(`Bon de Livraison No: ${bl.quantite}`, { align: 'center'}) // Set font size to 18
+          .text(`Bon de Livraison No: ${bl.reference}`, { align: 'center'}) // Set font size to 18
             .moveDown();
 
           pdfDoc.fontSize(9)
@@ -330,6 +343,12 @@ export class PdfdownloadController {
          },
         
       }); 
+
+      pdfDoc.moveDown(pdfDoc.height)
+      .fontSize(9)
+          .font('Times-Italic')
+          .text(`Signatute`, { align: 'right'}) // Set font size to 18
+          
 
         //pdfDoc.text(`Destinataire Data:\n${JSON.stringify(destinataire)}`);
 

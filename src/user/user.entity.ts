@@ -37,6 +37,7 @@ export class User {
     @Column({ nullable: true })
     resetCode: number;
 
-    @OneToMany(()=> Bl, (bonDeLiv)=>bonDeLiv.user)
-    bonDeLiv:Bl[];
+   @OneToMany(() => Bl, (bonDeLiv) => bonDeLiv.user)
+  bonDeLiv: Bl[];
+
 }

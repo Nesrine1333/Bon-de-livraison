@@ -9,8 +9,8 @@ export class Bl {
 
   //reference men win tji ?
 
-  @Column()
-  dateBl: Date;
+    @Column()
+    dateBl: Date;
 
 
   //Destinaraire
@@ -50,6 +50,7 @@ export class Bl {
     reference:string;
 
     @ManyToOne(()=> User,(user)=> user.bonDeLiv)
+    @JoinColumn({ name: 'userId'  })
     user: User
 
 
