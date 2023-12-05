@@ -65,8 +65,7 @@ export class BlService {
     
         // Update the Destinataire with the new Bl
        
-        const bl=await this.blRepository.save(newBonDeLiv);
-        return bl.id ; 
+        return this.blRepository.save(newBonDeLiv);
       }
 
     // find All BLs
