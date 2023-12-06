@@ -34,11 +34,11 @@ export class Bl {
     @Column()
     desc: string;
 
-    @Column()
-    prixLiv: number;//besh nzidu 3lih tva //shnuwa el fonction mta3 tva
+   /* @Column()
+    prixLiv: number;//besh nzidu 3lih tva //shnuwa el fonction mta3 tva= 8.00=fraislivra*/
 
     @Column()
-    prixHliv: number;
+    prixHliv: number;//cr_bt 
 
     @Column()
     etatC: boolean;
@@ -48,6 +48,9 @@ export class Bl {
 
     @Column()
     reference:string;
+
+    @Column()
+    nameBl:String;
 
     @ManyToOne(()=> User,(user)=> user.bonDeLiv)
     @JoinColumn({ name: 'userId'  })

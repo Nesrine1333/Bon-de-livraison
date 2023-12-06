@@ -13,7 +13,10 @@ export class User {
     matriculeFiscale: string;
 
     @Column()
-    phoneNumber: number;
+    phoneNumber1: number;
+
+    @Column()
+    phoneNumber2: number;
 
     @Column()
     gover: string;
@@ -32,7 +35,7 @@ export class User {
     password: string;
 
     @Column()
-    fraisLivraison: number;
+    fraisLivraison: number;//prixLiv
 
     @Column({ nullable: true })
     resetCode: number;

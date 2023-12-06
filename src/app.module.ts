@@ -29,7 +29,7 @@ import { PdfdownloadService } from './pdfdowload/pdfdowload.service';
         port: 3306,
         username: 'root',
         password: '',
-        database: 'baseBDLkahaw',
+        database: 'baseBDLkahaw2',
         entities: [Bl, User],
       //synchronize: true, 
         //wakt database deja tabda creer naamel synchronise false 
