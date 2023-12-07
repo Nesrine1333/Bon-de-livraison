@@ -4,7 +4,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToOne, JoinColumn
 
 @Entity({name: 'bl'})
 export class Bl {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ type: 'bigint'})
   id: number;
 
   //reference men win tji ?
@@ -52,6 +52,9 @@ export class Bl {
 
     @Column()
     reference:string;
+
+    @Column()
+    blname:string;
 
     @ManyToOne(()=> User,(user)=> user.bonDeLiv)
     @JoinColumn({ name: 'userId'  })

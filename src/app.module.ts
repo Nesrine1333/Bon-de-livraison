@@ -29,11 +29,11 @@ import { PdfdownloadService } from './pdfdowload/pdfdowload.service';
         port: 3306,
         username: 'root',
         password: '',
-        database: 'baseBDLkahaw2',
+        database: 'baseBDLkahaw22',
         entities: [Bl, User],
-   //   synchronize: true, 
+   //synchronize: true, 
         //wakt database deja tabda creer naamel synchronise false 
-   synchronize:false,
+synchronize:false,
       }),
       BlModule,
   
