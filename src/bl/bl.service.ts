@@ -53,18 +53,30 @@ export class BlService {
       
       ref = (this.generateRandomNumber(1, 100)).toString();
       
+      generateUniqueId(): number {
+        // Get the current timestamp
+        const timestamp = new Date().getTime();
+      
+        // Generate a random number (you may want to use a more sophisticated random number generator)
+        const random = Math.floor(Math.random() * 1000);
+      
+        // Combine timestamp and random number to create a unique ID
+        const uniqueId = parseInt(`${timestamp}${random}`, 10);
+      
+        return uniqueId;
+      }
+
     // Creation BL
     async create(idUser:number ,createBlDto: CreateBlDto) {
         const user= await this.userService.findOneById(idUser);
         
       
-        const idd=uuidv4()
-        const blId = this.uuidv4ToInt(idd); // Generate a unique ID for Bl
+       // const idd=uuidv4()
+        const blId = this.generateUniqueId(); // Generate a unique ID for Bl
 
         const currentDate = new Date();
-
         const newBonDeLiv = this.blRepository.create({
-        
+          id:blId,
           dateBl: new Date(
             currentDate.getFullYear(),
             currentDate.getMonth(),
@@ -75,8 +87,8 @@ export class BlService {
         });
     
         // Update the Destinataire with the new Bl
-       
-        const bl=await this.blRepository.save(newBonDeLiv);
+        const blname = `${newBonDeLiv.id}-${currentDate.toISOString().slice(0, 10)}`;
+        const bl=await this.blRepository.save({blname:blname,...newBonDeLiv});
         return bl
       }
 
@@ -121,6 +133,8 @@ export class BlService {
     
         return user || null;
       }
+
+
 
   }
         

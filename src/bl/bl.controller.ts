@@ -446,6 +446,11 @@ export class BlController {
   async create(@Param('idUser', ParseIntPipe) idUser: number, @Body() createBlDto: CreateBlDto, @Res() res: Response) {
     try {
         const bl = await this.BlService.create(idUser, createBlDto);
+
+
+        
+
+
         const BlName=await this.generatePdf(bl.id, res);
         return bl;
         

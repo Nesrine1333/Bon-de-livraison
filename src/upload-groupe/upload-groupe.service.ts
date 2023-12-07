@@ -41,44 +41,61 @@ export class UploadGroupeService {
       return numericValue;
     }
 
+
+
+     generateUniqueId(): number {
+      // Get the current timestamp
+      const timestamp = new Date().getTime();
+    
+      // Generate a random number (you may want to use a more sophisticated random number generator)
+      const random = Math.floor(Math.random() * 1000);
+    
+      // Combine timestamp and random number to create a unique ID
+      const uniqueId = parseInt(`${timestamp}${random}`, 10);
+    
+      return uniqueId;
+    }
+
     async saveDataFromExcel(id:number,data: any[]) {
 
       const user= await this.userService.findOneById(id);
       // Generate IDs for Destinataire and Colis
-      //const generatedIds = data.slice(1).map(() => this.uuidv4ToInt(uuidv4()));
+      const generatedIds = this.generateUniqueId()
 
+     
 
       const currentDate = new Date()
+      const idbl=Date.now()
     
       // Map Excel data to Destinataire entity model, starting from the third row
-      const mapped = data.slice(1).map((row,index) => ({
+      const mapped = data.slice(2).map((row,index) => ({
+        id:generatedIds[index],
         dateBl: new Date(
           currentDate.getFullYear(),
           currentDate.getMonth(),
           currentDate.getDate()
         ),
-        
         nomDest: row[1] || '',
-        etatC: false, // Default value
-        quantite: 1, // Default value
-        delegation:'',// ... other fields
-        user: user,
         numTelephone1: row[2] ,
         numTelephone2:  row[3] ,
         address: row[4] || '',
         gov: row[5] || '',
-        prixHliv:   row[7],
+        delegation:'',// ... other fields
         desc: row[6] || '',
+        prixHliv:   row[7],
+        etatC: false, // Default value
+        quantite: 1, // Default value
         reference: row[8] ,
-        
+        user: user,
       }));
       // Map Excel data to Colis entity model, starting from the fourth row
      
       const deepPartialMapped: DeepPartial<Bl>[] = mapped;
-
+      
 // Save to the database
-this.blRepository.create(deepPartialMapped);
-await this.blRepository.save(deepPartialMapped);
+    const bl= this.blRepository.create({id:generatedIds,...deepPartialMapped});
+    const blname = `${bl.id}-${currentDate.toISOString().slice(0, 10)}`;
+    await this.blRepository.save({blname:blname,...deepPartialMapped});
 
     
       // Save to the databas
@@ -92,7 +109,7 @@ await this.blRepository.save(deepPartialMapped);
       const worksheet = workbook.addWorksheet('EXEL');
   
       // Add headers
-      worksheet.addRow(['nom', 'numTelephone', 'address','gov', 'delegation', 'bonDeLiv']);
+      worksheet.addRow(['dateBl','nom', 'numTelephone1','numTelephone2','address','gov', 'delegation', 'desc']);
   
       // Save the workbook to a file
       const filePath = `exel_data.xlsx${Date.now()}.xlsx`;
