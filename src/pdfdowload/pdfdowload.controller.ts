@@ -13,6 +13,7 @@ import { PdfdownloadService } from './pdfdowload.service';
 import * as PDFDocument from 'pdfkit';
 import { AuthService } from 'src/auth/auth.service';
 import { BlService } from '../bl/bl.service';
+import { promises as fsPromises } from 'fs';
 
 //import { table, tableCell, tableRow } from 'pdfkit-table';
 
@@ -50,7 +51,7 @@ export class PdfdownloadController {
         ) { }
 
     //Upload file PDF , APi : http://localhost:3000/pdf/post
-    @Post('/post')
+    @Post('/post/')
     @UseInterceptors(AnyFilesInterceptor(Storage))
     async UploadMultiplesFiles(@UploadedFiles() files, @Body() Body) {
         console.log(Body.adicionals);
@@ -59,19 +60,27 @@ export class PdfdownloadController {
         return (true);
     }
 
-    //Api GET PDF FILES : http://localhost:3000/pdf/downloads
-    @Get('downloads')
-    async downloadPDF(@Res() res): Promise<void> {
-        const buffer = await this.pdfdownloadService.generatePDF();
+  
 
-        res.set({
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': 'attachment; filename=example.pdf',
-            'Content-Length': buffer.length,
-        })
-        console.log("testdowload,tester valide")
-        res.end(buffer);
+
+
+    async checkAndCreateFileIfNotExists(filename: string): Promise<void> {
+      const downloadsDirectory = join('../', 'downloads');
+      const filePath = join(downloadsDirectory, 'BonLive');
+  
+      try {
+        // Check if the file exists
+        await fsPromises.access(filePath);
+      } catch (error) {
+        // File doesn't exist, create the "downloads" directory if it doesn't exist
+        await fsPromises.mkdir(downloadsDirectory, { recursive: true });
+  
+        // Create the file and write the filename
+        await fsPromises.writeFile(filePath, filename);
+      }
     }
+
+
 
     //Api GetFile : http://localhost:3000/pdf/filename
     @Get(':filename')
@@ -80,7 +89,9 @@ export class PdfdownloadController {
     }
 
 
-    @Post(':idBl/createpdf')
+
+
+    /*@Post(':idBl/createpdf')
     async generatePdf(@Param('idBl') idBl: number, @Res() res: Response) {
         try {
 
@@ -120,8 +131,7 @@ export class PdfdownloadController {
           day: '2-digit',
         });
 
-        pdfDoc
-          
+        pdfDoc  
           .text(`Bon de Livraison No: ${bl.reference}`, { align: 'center', ...textOptions })
           .text(`Date d'enlévement:${formattedDate}`, { align: 'center',continued:true, ...textOptions })
           .image(imagePath, xUpperRight, yUpperRight, { width: 100 })
@@ -180,6 +190,26 @@ export class PdfdownloadController {
 
         const prixTot=(bl.prixHliv*quantite+bl.prixLiv).toString();
 
+
+
+        const addDivider = (x1, y1, x2, y2) => {
+          pdfDoc
+            .createPage([x2 - x1, 2]) // Assuming the line height is 2 (adjust as needed)
+            .drawLine({
+              start: { x: 0, y: 0 },
+              end: { x: x2 - x1, y: 0 },
+              color: rgb(0, 0, 0), // Adjust color as needed
+              thickness: 1, // Adjust thickness as needed
+            })
+            .moveDown();
+        };
+        
+        const addPadding = (text, x, y, options) => {
+          pdfDoc.text(text, { x: x + 5, y, ...options }); // Adjust padding as needed
+        };
+        
+
+        pdfDoc.font('Helvetica-Bold')
           // requires 
         const table = {
            title: "Details",
@@ -190,10 +220,10 @@ export class PdfdownloadController {
              columnSpacing: 10,
            },
            headers: [
-            { label: "Description",headerColor:"#1765d1", headerOpacity:1  },
-            { label: "Prix" ,headerColor:"#1765d1", headerOpacity:1},
-            { label: "Quantité",headerColor:"#1765d1", headerOpacity:1 },
-            { label: "Montant",headerColor:"#1765d1", headerOpacity:1 },
+            { label: "Description",headerColor:"#4253ed", headerOpacity:1  },
+            { label: "Prix" ,headerColor:"#4253ed", headerOpacity:1},
+            { label: "Quantité",headerColor:"#4253ed", headerOpacity:1 },
+            { label: "Montant",headerColor:"#4253ed", headerOpacity:1 },
           ],
            rows: [
              [desc, prix, "1",montant],
@@ -208,8 +238,8 @@ export class PdfdownloadController {
             prepareHeader: () => pdfDoc.fontSize(10)
             .fill('black'),
             prepareRow: (row, indexColumn, indexRow, rectRow) => {
-              pdfDoc.font("Helvetica").fontSize(8);
-              indexColumn === 0 && pdfDoc.addBackground(rectRow, 'grey', 0.15);
+              pdfDoc.font("Helvetica-Bold").fontSize(8);
+              indexColumn === 0 && pdfDoc.addBackground(rectRow, '#e6e8f5', 0.15);
             },
          }); 
 
@@ -277,7 +307,7 @@ export class PdfdownloadController {
         const textTitle2 = 'Information Expediteur';
         const textTitle3 = 'Information Destinateur';
         
-        const text = `${textTitle2}\n${text2.join('\n')}\n\n${textTitle3}\n${text3.join('\n')}`;
+        const text = `${text2.join('\n')}\n\n${text3.join('\n')}`;
         
         pdfDoc.y = recyPosition + 10;
         
@@ -331,6 +361,20 @@ export class PdfdownloadController {
           ["Total Montant TTC",ttc],
        ],
       };
+
+      const columnWidths = [440, 100];
+
+      const addVerticalLine = (x, y1, y2, color = rgb(0, 0, 0), thickness = 1) => {
+        pdfDoc.drawLine({
+          start: { x, y: y1 },
+          end: { x, y: y2 },
+          color,
+          thickness,
+        });
+      };
+
+      
+
       pdfDoc.table( table2, { 
       //   A4 595.28 x 841.89 (portrait) (about width sizes)
       //  width: 300,
@@ -340,6 +384,7 @@ export class PdfdownloadController {
          prepareRow: (row, indexColumn, indexRow, rectRow) => {
            pdfDoc.fontSize(10).font("Helvetica");
            indexColumn === 0 && pdfDoc.addBackground(rectRow, 'grey', 0.15);
+           
          },
         
       }); 
@@ -396,10 +441,15 @@ export class PdfdownloadController {
   
         res.header('Content-Type', 'application/pdf');
         res.header('Content-Disposition', `attachment; filename=${formattedDateTime}`);
+        
         res.sendFile(filePath);
       } catch (error) {
         console.error(error);
         res.status(404).json({ message: 'Destinataire not found' });
     }
-  }
+  }*/
+}
+
+function rgb(arg0: number, arg1: number, arg2: number) {
+  throw new Error('Function not implemented.');
 }

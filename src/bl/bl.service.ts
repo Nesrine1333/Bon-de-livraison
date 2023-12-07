@@ -29,6 +29,18 @@ export class BlService {
 
 
 
+    async findOneById(id: number, relations?: string[]): Promise<Bl | undefined> {
+      const query = this.blRepository.createQueryBuilder('bl').where('bl.id = :id', { id });
+  
+      if (relations) {
+        relations.forEach(relation => {
+          query.leftJoinAndSelect(`bl.${relation}`, relation);
+        });
+      }
+  
+      return query.getOne();
+    }
+
     uuidv4ToInt(uuidValue: string): number {
         const numericValue = parseInt(crypto.createHash('sha256').update(uuidValue).digest('hex'), 16);
         return numericValue;
@@ -40,6 +52,7 @@ export class BlService {
       }
       
       ref = (this.generateRandomNumber(1, 100)).toString();
+      
     // Creation BL
     async create(idUser:number ,createBlDto: CreateBlDto) {
         const user= await this.userService.findOneById(idUser);
@@ -51,7 +64,7 @@ export class BlService {
         const currentDate = new Date();
 
         const newBonDeLiv = this.blRepository.create({
-          id: blId,
+        
           dateBl: new Date(
             currentDate.getFullYear(),
             currentDate.getMonth(),
@@ -59,8 +72,6 @@ export class BlService {
           ),reference:this.ref,
           ...createBlDto,
           user
-        
-
         });
     
         // Update the Destinataire with the new Bl
@@ -109,6 +120,7 @@ export class BlService {
     
         return user || null;
       }
+
   }
         
    

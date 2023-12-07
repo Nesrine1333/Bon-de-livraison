@@ -32,7 +32,7 @@ export class User {
     password: string;
 
     @Column()
-    fraisLivraison: number;
+    fraisLivraison: number;//prixLiv
 
     @Column({ nullable: true })
     resetCode: number;
