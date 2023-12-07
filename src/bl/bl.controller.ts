@@ -124,18 +124,9 @@ export class BlController {
           .text(`Date d'enlévement:${formattedDate}`, { align: 'center',continued:true, ...textOptions })
           .image(imagePath, xUpperRight, yUpperRight, { width: 100 })
           .text(' ',{align:'center'})
-          .moveDown();
-
-
-     
-
-        
-
+          .moveDown()
         // Information Destinataire
-        
-    
-
-
+  
         // Information Expediteur
         pdfDoc.fontSize(10)
         .text(' ',{align:'center'})
@@ -447,6 +438,10 @@ export class BlController {
     }
   }
 
+
+
+ 
+
   @Post(':idUser/createbl')
   async create(@Param('idUser', ParseIntPipe) idUser: number, @Body() createBlDto: CreateBlDto, @Res() res: Response) {
     try {
@@ -486,6 +481,37 @@ export class BlController {
 
     // Send the file as the response
     res.sendFile(filePath);
+  }
+
+
+
+  @Get(':id/downloadImported')
+  async downloadFileFromExcel(@Param('id') id: number, @Res() res: Response){
+    const bl = await this.generatePdf(id,res);
+    const directoryPath = join(__dirname,'..','..' ,'Downloads');
+    const files = readdirSync(directoryPath);
+
+    // Find the file that matches the given id in its name
+    const filename = files.find((file) => file.startsWith(`${id}-`));
+
+    if (!filename) {
+      // If no matching file is found, send an error response
+      return res.status(404).send('File not found');
+    }
+
+    // Construct the full file path
+    const filePath = join(directoryPath, filename);
+
+    // Set the headers for the response
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename=${filename}`,
+    });
+
+    // Send the file as the response
+    res.sendFile(filePath);
+    
+
   }
 }
 function rgb(arg0: number, arg1: number, arg2: number) {
