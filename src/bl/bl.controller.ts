@@ -8,6 +8,8 @@ import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import {join } from 'path';
 import * as fs from 'fs';
+import { readdirSync } from 'fs';
+
 
   
 
@@ -449,20 +451,32 @@ export class BlController {
   async create(@Param('idUser', ParseIntPipe) idUser: number, @Body() createBlDto: CreateBlDto, @Res() res: Response) {
     try {
         const bl = await this.BlService.create(idUser, createBlDto);
-
-
-
         const BlName=await this.generatePdf(bl.id, res);
-        return BlName 
+        return bl;
+        
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Error creating BL or generating PDF' });
     }
   }
-@Get(':filename')
-  async downloadFile(@Param('filename') filename: string, @Res() res: Response) {
-    // Assume files are stored in a directory named 'pdfs'
-    const filePath = join(__dirname, '..', '..', 'pdfs', filename);
+  @Get(':id/file')
+  async downloadFile(@Param('id') id: number, @Res() res: Response) {
+    // Assume files are stored in a directory named 'downloads'
+    const directoryPath = join(__dirname,'..','..' ,'Downloads');
+
+    // Get the list of files in the directory
+    const files = readdirSync(directoryPath);
+
+    // Find the file that matches the given id in its name
+    const filename = files.find((file) => file.startsWith(`${id}-`));
+
+    if (!filename) {
+      // If no matching file is found, send an error response
+      return res.status(404).send('File not found');
+    }
+
+    // Construct the full file path
+    const filePath = join(directoryPath, filename);
 
     // Set the headers for the response
     res.set({

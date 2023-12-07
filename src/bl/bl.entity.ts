@@ -18,11 +18,11 @@ export class Bl {
     nomDest: string;
 
     @Column()
-    numTelephone1:  string;
+    numTelephone1:string  ;
 
     
     @Column()
-    numTelephone2:string;
+    numTelephone2:string  ;
 
     @Column()
     address:String;
@@ -42,7 +42,7 @@ export class Bl {
     prixLiv: number;//besh nzidu 3lih tva //shnuwa el fonction mta3 tva= 8.00=fraislivra*/
 
     @Column()
-    prixHliv: number;//cr_bt 
+    prixHliv: number |null;//cr_bt 
 
     @Column()
     etatC: boolean;
