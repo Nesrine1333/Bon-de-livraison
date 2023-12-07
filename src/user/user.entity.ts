@@ -13,10 +13,7 @@ export class User {
     matriculeFiscale: string;
 
     @Column()
-    phoneNumber1: number;
-
-    @Column()
-    phoneNumber2: number;
+    phoneNumber: number;
 
     @Column()
     gover: string;

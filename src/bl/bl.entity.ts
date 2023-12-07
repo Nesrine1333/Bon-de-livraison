@@ -18,7 +18,11 @@ export class Bl {
     nomDest: string;
 
     @Column()
-    numTelephone:number;
+    numTelephone1:  string;
+
+    
+    @Column()
+    numTelephone2:string;
 
     @Column()
     address:String;
@@ -48,9 +52,6 @@ export class Bl {
 
     @Column()
     reference:string;
-
-    @Column()
-    nameBl:String;
 
     @ManyToOne(()=> User,(user)=> user.bonDeLiv)
     @JoinColumn({ name: 'userId'  })

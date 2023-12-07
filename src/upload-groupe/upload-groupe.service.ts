@@ -1,19 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as exceljs from 'exceljs';
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { parse } from 'uuid';
 import * as uuid from 'uuid';
 import * as crypto from 'crypto';
 import { Workbook } from 'exceljs';
 import { Bl } from '../bl/bl.entity';
+import { AuthService } from 'src/auth/auth.service';
 
 @Injectable()
 export class UploadGroupeService {
 
     constructor(@InjectRepository(Bl)
-    private blRepository: Repository<Bl>){}
+    private blRepository: Repository<Bl>, private userService:AuthService){}
     
     //you don't need the function keywrd when using a function in a service 
     async readExcel(filePath: string) {
@@ -40,25 +41,59 @@ export class UploadGroupeService {
       return numericValue;
     }
 
-    async saveDataFromExcel(data: any[]) {
+    async saveDataFromExcel(id:number,data: any[]) {
+
+      const user= await this.userService.findOneById(id);
       // Generate IDs for Destinataire and Colis
-      const ids = data.slice(2).map(() => this.uuidv4ToInt(uuidv4()));
+      const generatedIds = data.slice(1).map(() => uuidv4());
+
+
+      const currentDate = new Date()
     
       // Map Excel data to Destinataire entity model, starting from the third row
-      const mapped = data.slice(2).map((row, index) => ({
-        id: ids[index],
-        nom: row[1] || '',
-        numTelephone: !isNaN(row[2]) ? row[2] : null,
-        address: row[4] || '',
-        gov: row[5] || '',
-        // ...
+      const mapped = data.slice(2).map((row,index) => ({
+        id: generatedIds[index],
+        dateBl: new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          currentDate.getDate()
+        ),
+        etatC: false, // Default value
+        quantite: 1, // Default value
+        delegation:'',// ... other fields
+        user: user,
+        reference: row[1] || '',
+        nomDest: row[2] || '',
+        numTelephone1: row[3] ,
+        numTelephone2:  row[4],
+        address: row[6] || '',
+        gov: row[7] || '',
+        prixHliv:   parseInt(row[8]) ,
+        desc: row[9] || '',
+        
       }));
-    
       // Map Excel data to Colis entity model, starting from the fourth row
      
+      const deepPartialMapped: DeepPartial<Bl>[] = mapped;
+
+// Save to the database
+await this.blRepository.save(deepPartialMapped);
+
     
       // Save to the database
-      this.blRepository.save(mapped);
+     const newBonDeLiv = this.blRepository.create({
+        dateBl: new Date(
+          currentDate.getFullYear(),
+          currentDate.getMonth(),
+          currentDate.getDate()
+        ),delegation:'',
+        etatC:false,
+        quantite:1,
+      ...mapped,
+      user
+        
+      });
+     
    
     }
 

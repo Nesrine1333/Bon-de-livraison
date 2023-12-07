@@ -31,9 +31,9 @@ import { PdfdownloadService } from './pdfdowload/pdfdowload.service';
         password: '',
         database: 'baseBDLkahaw2',
         entities: [Bl, User],
-      //synchronize: true, 
+    //  synchronize: true, 
         //wakt database deja tabda creer naamel synchronise false 
-     synchronize:false,
+   synchronize:false,
       }),
       BlModule,
   

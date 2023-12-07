@@ -52,6 +52,7 @@ export class BlService {
       }
       
       ref = (this.generateRandomNumber(1, 100)).toString();
+      
     // Creation BL
     async create(idUser:number ,createBlDto: CreateBlDto) {
         const user= await this.userService.findOneById(idUser);
@@ -120,6 +121,7 @@ export class BlService {
     
         return user || null;
       }
+
   }
         
    

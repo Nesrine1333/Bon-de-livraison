@@ -48,10 +48,14 @@ export class BlController {
     }
 
 
-    async savePDF(filePath: string, res: Response, filename: string): Promise<void> {
+  /*  @Get(':id/')
+    async savePDF(filePath: string, res: Response,@Param('id') id: number): Promise<void> {
+
+
       try {
           const buffer = fs.readFileSync(filePath);
     
+
           res.set({
               'Content-Type': 'application/pdf',
               'Content-Disposition': `attachment; filename=${filename}`,
@@ -61,6 +65,7 @@ export class BlController {
           // Envoyer le fichier au client
           res.end(buffer);
     
+          
           // Supprimer le fichier après l'envoi (facultatif)
           fs.unlinkSync(filePath);
     
@@ -69,7 +74,7 @@ export class BlController {
           console.error('Erreur lors de la lecture du fichier PDF:', error);
           res.status(500).json({ message: 'Internal Server Error' });
       }
-    }
+    }*/
 
     
     @Get(':idBl/createpdf')
@@ -138,7 +143,7 @@ export class BlController {
         .text(`Nom:${user.nom}`, {continued:true, align: 'left' })
         .text(`Nom:${bl.nomDest}`,{align:'right' })
         .text(`MF:${user.matriculeFiscale}`, {continued:true, align: 'left'} )  
-        .text(`Tel:${bl.numTelephone}`,{align:'right' })
+        .text(`Tel:${bl.numTelephone1}`,{align:'right' })
         .text(`Adress:${user.adress}`, {continued:true, align: 'left' })  
         .text(`Address:${bl.address}`,{align:'right' })
         .text(`Gouvernorat:${user.gover}` ,{continued:true, align: 'left' })
@@ -272,7 +277,7 @@ export class BlController {
         
         const text3 = [
           `Nom:${bl.nomDest}`,
-          `Tel:${bl.numTelephone}`,
+          `Tel:${bl.numTelephone1}`,
           `Address:${bl.address}`
         ];
         
@@ -380,11 +385,14 @@ export class BlController {
 
         
 
-        const formattedDateTime = `${year}-${month}-${day}_${hours}-${minutes}`;
+        const formattedDateTime = `${bl.id}-${year}-${month}-${day}_${hours}-${minutes}`;
          // Format date as 'YYYY-MM-DD'
     
         // Set headers for PDF download
-        const dirPath = path.resolve(process.cwd(), 'downloads');
+        const dirPath = path.resolve(process.cwd(), '../../../BonDeLivraison');
+        const dirPath2 = path.resolve(process.cwd(), 'Downloads');
+
+
         console.log('Directory path:', dirPath);
   
         if (!fs.existsSync(dirPath)) {
@@ -392,21 +400,33 @@ export class BlController {
           fs.mkdirSync(dirPath, { recursive: true });
         }
   
-        ///const filePathlocal = `pdfdata.pfd${Date.now()}.pdf`;
-       const filePathlocal = path.resolve(  formattedDateTime);
+      // const filePathlocal = `pdfdata.pfd${Date.now()}.pdf`;
+      const filePathlocal = path.resolve(dirPath,  formattedDateTime+'.pdf');
+      const filePathserver = path.resolve(dirPath2,  formattedDateTime+'.pdf');
+
+      
         console.log('File path:', filePathlocal );
   
         await new Promise<void>((resolve, reject) => {
-          pdfDoc.pipe(fs.createWriteStream(filePathlocal ))
+          pdfDoc.pipe(fs.createWriteStream(filePathlocal))
             .on('finish', () => {
               console.log('File writing finished');
-              resolve();
+              // Now, copy the file to the second directory
+              fs.copyFile(filePathlocal, filePathserver, (err) => {
+                if (err) {
+                  console.error('Error copying file:', err);
+                  reject(err);
+                } else {
+                  console.log('File copied to second directory');
+                  resolve();
+                }
+              });
             })
             .on('error', (error) => {
               console.error('File writing error:', error);
               reject(error);
             });
-  
+        
           pdfDoc.end();
         });
   
@@ -417,7 +437,8 @@ export class BlController {
        // res.download(filePath);
         res.sendFile(filePathlocal);
 
-        await this.savePDF(filePathlocal, res, formattedDateTime);
+      //  await this.savePDF(filePathlocal, res, formattedDateTime);
+      return formattedDateTime
       } catch (error) {
         console.error(error);
         res.status(404).json({ message: 'Destinataire not found' });
@@ -425,18 +446,19 @@ export class BlController {
   }
 
   @Post(':idUser/createbl')
-    async create(@Param('idUser', ParseIntPipe) idUser: number, @Body() createBlDto: CreateBlDto, @Res() res: Response) {
-        try {
-            const bl = await this.BlService.create(idUser, createBlDto);
-    
-           
-            return bl
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Error creating BL or generating PDF' });
-        }
-            }
+  async create(@Param('idUser', ParseIntPipe) idUser: number, @Body() createBlDto: CreateBlDto, @Res() res: Response) {
+    try {
+        const bl = await this.BlService.create(idUser, createBlDto);
 
+
+
+        const BlName=await this.generatePdf(bl.id, res);
+        return BlName 
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error creating BL or generating PDF' });
+    }
+  }
 @Get(':filename')
   async downloadFile(@Param('filename') filename: string, @Res() res: Response) {
     // Assume files are stored in a directory named 'pdfs'
