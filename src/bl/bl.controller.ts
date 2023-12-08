@@ -435,11 +435,12 @@ export class BlController {
         res.header('Content-Type', 'application/pdf');
         res.header('Content-Disposition', `attachment; filename=${formattedDateTime}`);
        // res.download(filePath);
-       res.json(bl.id);
+       // res.json(bl.id);
         res.sendFile(filePathlocal);
+        
 
       //  await this.savePDF(filePathlocal, res, formattedDateTime);
-      return formattedDateTime
+      return bl.id
       } catch (error) {
         console.error(error);
         res.status(404).json({ message: 'Destinataire not found' });
@@ -455,19 +456,7 @@ export class BlController {
     try {
         const bl = await this.BlService.create(idUser, createBlDto);
         await this.generatePdf(bl.id, res);
-
-        const date = new Date();
-        const year = date.getFullYear();
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const day = date.getDate().toString().padStart(2, '0');
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        const formattedDateTime = `${bl.id}-${year}-${month}-${day}_${hours}-${minutes}`;
-        const dirPath = path.resolve(process.cwd(), 'Downloads');
-       const filePathlocal = path.resolve(dirPath,  formattedDateTime+'.pdf');
-        res.header('Content-Type', 'application/pdf');
-        res.header('Content-Disposition', `attachment; filename=${formattedDateTime}`);
-         res.sendFile(filePathlocal);
+        res.json(bl.id);
         return bl;
         
     } catch (error) {
@@ -506,38 +495,35 @@ export class BlController {
 
 
 
-  @Get(':idBl/downloadImported')
-  async downloadFileFromExcel(@Param('idBl') id: number, @Res() res: Response){
-    try {
-      // Generate the PDF first
-      await this.generatePdf(id, res);
-  
-      // Now, retrieve the file from the Downloads directory
-      const directoryPath = join(__dirname, '..', '..', 'Downloads');
-      const files = readdirSync(directoryPath);
-  
-      // Find the file that matches the given id in its name
-      const filename = files.find((file) => file.startsWith(`${id}-`));
-      console.log(filename);
-  
-      if (!filename) {
-        // If no matching file is found, send an error response
-        return res.status(404).send('File not found');
-      }
-  
-      // Set the headers for the response
-      res.set({
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': `attachment; filename=${filename}+.pdf`,
-      });
-  
-      // Send the file as the response
-      const filePath = join(directoryPath, filename);
-      res.sendFile(filePath);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Error downloading the file' });
+  @Get(':id/downloadImported')
+  async downloadFileFromExcel(@Param('id') id: number, @Res() res: Response){
+     const bl= await this.BlService.findOneById(id);
+    
+    await this.generatePdf(bl.id,res);
+    
+    
+    const directoryPath = join(__dirname,'..','..' ,'Downloads');
+    const files = readdirSync(directoryPath);
+
+    // Find the file that matches the given id in its name
+    const filename = files.find((file) => file.startsWith(`${id}-`));
+
+    if (!filename) {
+      // If no matching file is found, send an error response
+      return res.status(404).send('File not found');
     }
+
+    // Construct the full file path
+    const filePath = join(directoryPath, filename);
+
+    // Set the headers for the response
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename=${filename}`,
+    });
+
+    // Send the file as the response
+    res.sendFile(filePath);
     
 
   }
