@@ -22,7 +22,7 @@ export class UploadGroupeController {
     
             if (data && data.length > 0) {
                 await this.uploadServicce.saveDataFromExcel(id,data);
-                return { message: 'Data uploaded successfully.' };
+                return { message: 'Data uploaded successfully.', };
             } else {
                 throw new BadRequestException('No valid data found in the Excel file.');
             }

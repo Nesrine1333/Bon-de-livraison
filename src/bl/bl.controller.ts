@@ -102,7 +102,7 @@ export class BlController {
         const x = 50;
         const y = 150;
 
-        const imagePath = path.join(__dirname, '..', '..', 'uploads',  image);
+        const imagePath = path.resolve(__dirname, '..', '..', 'uploads', image);
         
 
         const xUpperRight = pdfDoc.page.width - 120; // Adjust as needed
@@ -119,10 +119,11 @@ export class BlController {
           day: '2-digit',
         });
 
-        pdfDoc  
+        pdfDoc.moveDown()
+        .moveDown()  
           .text(`Bon de Livraison No: ${bl.reference}`, { align: 'center', ...textOptions })
           .text(`Date d'enlévement:${formattedDate}`, { align: 'center',continued:true, ...textOptions })
-          .image(imagePath, xUpperRight, yUpperRight, { width: 100 })
+          .image(imagePath, xUpperRight, yUpperRight, { width: 80 })
           .text(' ',{align:'center'})
           .moveDown()
         // Information Destinataire
@@ -156,8 +157,9 @@ export class BlController {
 
         const Livraison=user.fraisLivraison.toString();//user.frai
 
-        const quantite=1 //bl.quantite.toString();
+        const quantite=1. //bl.quantite.toString();
 
+        const tableQuantite=quantite.toString();
         const montant=(bl.prixHliv*quantite).toString();
 
         const prixTot=(bl.prixHliv*quantite+user.fraisLivraison).toString();//prixLiv =userFrais
@@ -196,7 +198,7 @@ export class BlController {
             { label: "Montant",headerColor:"#4253ed", headerOpacity:1 },
           ],
            rows: [
-             [desc, prix, "1",montant],
+             [desc, prix, tableQuantite,montant],
              ["Livraison", "", "",Livraison],
              ["Total", "", "",prixTot],
           ],
@@ -306,7 +308,9 @@ export class BlController {
       .lineJoin('round')
       .roundedRect(20, recyPosition, widthShape, length, 15)
       .stroke()
-      .moveDown();
+      .moveDown()
+      .moveDown()
+      .moveDown(); 
 
       pdfDoc.y = recyPosition+length+20;
     
@@ -345,7 +349,10 @@ export class BlController {
 
       
 
-      pdfDoc.table( table2, { 
+      pdfDoc.moveDown()
+      .moveDown()
+      .moveDown()
+      .table( table2, { 
       //   A4 595.28 x 841.89 (portrait) (about width sizes)
       //  width: 300,
          columnsSize: [ 440, 100 ],
@@ -428,10 +435,12 @@ export class BlController {
         res.header('Content-Type', 'application/pdf');
         res.header('Content-Disposition', `attachment; filename=${formattedDateTime}`);
        // res.download(filePath);
+       // res.json(bl.id);
         res.sendFile(filePathlocal);
+        
 
       //  await this.savePDF(filePathlocal, res, formattedDateTime);
-      return formattedDateTime
+      return bl.id
       } catch (error) {
         console.error(error);
         res.status(404).json({ message: 'Destinataire not found' });
@@ -446,12 +455,8 @@ export class BlController {
   async create(@Param('idUser', ParseIntPipe) idUser: number, @Body() createBlDto: CreateBlDto, @Res() res: Response) {
     try {
         const bl = await this.BlService.create(idUser, createBlDto);
-
-
-        
-
-
-        const BlName=await this.generatePdf(bl.id, res);
+        await this.generatePdf(bl.id, res);
+        res.json(bl.id);
         return bl;
         
     } catch (error) {
@@ -492,7 +497,11 @@ export class BlController {
 
   @Get(':id/downloadImported')
   async downloadFileFromExcel(@Param('id') id: number, @Res() res: Response){
-    const bl = await this.generatePdf(id,res);
+     const bl= await this.BlService.findOneById(id);
+    
+    await this.generatePdf(bl.id,res);
+    
+    
     const directoryPath = join(__dirname,'..','..' ,'Downloads');
     const files = readdirSync(directoryPath);
 
