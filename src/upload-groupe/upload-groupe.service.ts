@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as exceljs from 'exceljs';
 import { DeepPartial, Repository } from 'typeorm';
+import { UpdateResult } from 'typeorm';
 import { v4 as uuidv4 } from 'uuid';
 import { parse } from 'uuid';
 import * as uuid from 'uuid';
@@ -9,6 +10,7 @@ import * as crypto from 'crypto';
 import { Workbook } from 'exceljs';
 import { Bl } from '../bl/bl.entity';
 import { AuthService } from 'src/auth/auth.service';
+import { map } from 'rxjs';
 
 @Injectable()
 export class UploadGroupeService {
@@ -75,29 +77,41 @@ export class UploadGroupeService {
           currentDate.getMonth(),
           currentDate.getDate()
         ),
-        nomDest: row[1] || '',
+        delegation:'',
+        etatC: false,
+        quantite: 1,
+        user: user,
+        nomDest: row[1] ,
         numTelephone1: row[2] ,
         numTelephone2:  row[3] ,
-        address: row[4] || '',
-        gov: row[5] || '',
-        delegation:'',// ... other fields
-        desc: row[6] || '',
+        address: row[4] ,
+        gov: row[5] ,
+        // ... other fields
+        desc: row[6] ,
         prixHliv:   row[7],
-        etatC: false, // Default value
-        quantite: 1, // Default value
+         // Default value
+         // Default value
         reference: row[8] ,
-        user: user,
+       
+       
       }));
       // Map Excel data to Colis entity model, starting from the fourth row
      
+      console.log(mapped)
       const deepPartialMapped: DeepPartial<Bl>[] = mapped;
-      
+      console.log(deepPartialMapped)
 // Save to the database
-    const bl= this.blRepository.create({id:generatedIds,...deepPartialMapped});
-    const blname = `${bl.id}-${currentDate.toISOString().slice(0, 10)}`;
-    await this.blRepository.save({blname:blname,...deepPartialMapped});
-
+    const bl= this.blRepository.create(deepPartialMapped);
+    console.log(bl)
     
+    const blimportes=await this.blRepository.save(mapped);
+     const updatePromises = blimportes.map(async (blEntity, index) => {
+    const blname = `${blEntity.id}-${currentDate.toISOString().slice(0, 10)}`;
+    return this.blRepository.update(blEntity.id, { blname });
+  });
+
+  const updateResults: UpdateResult[] = await Promise.all(updatePromises);
+
       // Save to the databas
      
    
