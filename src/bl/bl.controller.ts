@@ -102,7 +102,7 @@ export class BlController {
         const x = 50;
         const y = 150;
 
-        const imagePath = path.join(__dirname, '..', '..', 'uploads',  image);
+        const imagePath = path.resolve(__dirname, '..', '..', 'uploads', image);
         
 
         const xUpperRight = pdfDoc.page.width - 120; // Adjust as needed
@@ -119,10 +119,11 @@ export class BlController {
           day: '2-digit',
         });
 
-        pdfDoc  
+        pdfDoc.moveDown()
+        .moveDown()  
           .text(`Bon de Livraison No: ${bl.reference}`, { align: 'center', ...textOptions })
           .text(`Date d'enlévement:${formattedDate}`, { align: 'center',continued:true, ...textOptions })
-          .image(imagePath, xUpperRight, yUpperRight, { width: 100 })
+          .image(imagePath, xUpperRight, yUpperRight, { width: 80 })
           .text(' ',{align:'center'})
           .moveDown()
         // Information Destinataire
@@ -156,8 +157,9 @@ export class BlController {
 
         const Livraison=user.fraisLivraison.toString();//user.frai
 
-        const quantite=1 //bl.quantite.toString();
+        const quantite=1. //bl.quantite.toString();
 
+        const tableQuantite=quantite.toString();
         const montant=(bl.prixHliv*quantite).toString();
 
         const prixTot=(bl.prixHliv*quantite+user.fraisLivraison).toString();//prixLiv =userFrais
@@ -196,7 +198,7 @@ export class BlController {
             { label: "Montant",headerColor:"#4253ed", headerOpacity:1 },
           ],
            rows: [
-             [desc, prix, "1",montant],
+             [desc, prix, tableQuantite,montant],
              ["Livraison", "", "",Livraison],
              ["Total", "", "",prixTot],
           ],
@@ -306,7 +308,9 @@ export class BlController {
       .lineJoin('round')
       .roundedRect(20, recyPosition, widthShape, length, 15)
       .stroke()
-      .moveDown();
+      .moveDown()
+      .moveDown()
+      .moveDown(); 
 
       pdfDoc.y = recyPosition+length+20;
     
@@ -345,7 +349,10 @@ export class BlController {
 
       
 
-      pdfDoc.table( table2, { 
+      pdfDoc.moveDown()
+      .moveDown()
+      .moveDown()
+      .table( table2, { 
       //   A4 595.28 x 841.89 (portrait) (about width sizes)
       //  width: 300,
          columnsSize: [ 440, 100 ],
@@ -428,6 +435,7 @@ export class BlController {
         res.header('Content-Type', 'application/pdf');
         res.header('Content-Disposition', `attachment; filename=${formattedDateTime}`);
        // res.download(filePath);
+       res.json(bl.id);
         res.sendFile(filePathlocal);
 
       //  await this.savePDF(filePathlocal, res, formattedDateTime);
@@ -446,12 +454,20 @@ export class BlController {
   async create(@Param('idUser', ParseIntPipe) idUser: number, @Body() createBlDto: CreateBlDto, @Res() res: Response) {
     try {
         const bl = await this.BlService.create(idUser, createBlDto);
+        await this.generatePdf(bl.id, res);
 
-
-        
-
-
-        const BlName=await this.generatePdf(bl.id, res);
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const formattedDateTime = `${bl.id}-${year}-${month}-${day}_${hours}-${minutes}`;
+        const dirPath = path.resolve(process.cwd(), 'Downloads');
+       const filePathlocal = path.resolve(dirPath,  formattedDateTime+'.pdf');
+        res.header('Content-Type', 'application/pdf');
+        res.header('Content-Disposition', `attachment; filename=${formattedDateTime}`);
+         res.sendFile(filePathlocal);
         return bl;
         
     } catch (error) {
@@ -490,31 +506,38 @@ export class BlController {
 
 
 
-  @Get(':id/downloadImported')
-  async downloadFileFromExcel(@Param('id') id: number, @Res() res: Response){
-    const bl = await this.generatePdf(id,res);
-    const directoryPath = join(__dirname,'..','..' ,'Downloads');
-    const files = readdirSync(directoryPath);
-
-    // Find the file that matches the given id in its name
-    const filename = files.find((file) => file.startsWith(`${id}-`));
-
-    if (!filename) {
-      // If no matching file is found, send an error response
-      return res.status(404).send('File not found');
+  @Get(':idBl/downloadImported')
+  async downloadFileFromExcel(@Param('idBl') id: number, @Res() res: Response){
+    try {
+      // Generate the PDF first
+      await this.generatePdf(id, res);
+  
+      // Now, retrieve the file from the Downloads directory
+      const directoryPath = join(__dirname, '..', '..', 'Downloads');
+      const files = readdirSync(directoryPath);
+  
+      // Find the file that matches the given id in its name
+      const filename = files.find((file) => file.startsWith(`${id}-`));
+      console.log(filename);
+  
+      if (!filename) {
+        // If no matching file is found, send an error response
+        return res.status(404).send('File not found');
+      }
+  
+      // Set the headers for the response
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename=${filename}+.pdf`,
+      });
+  
+      // Send the file as the response
+      const filePath = join(directoryPath, filename);
+      res.sendFile(filePath);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error downloading the file' });
     }
-
-    // Construct the full file path
-    const filePath = join(directoryPath, filename);
-
-    // Set the headers for the response
-    res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename=${filename}`,
-    });
-
-    // Send the file as the response
-    res.sendFile(filePath);
     
 
   }

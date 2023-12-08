@@ -87,8 +87,8 @@ export class BlService {
         });
     
         // Update the Destinataire with the new Bl
-        //const blname = `${newBonDeLiv.id}-${currentDate.toISOString().slice(0, 10)}`;
-        const bl=await this.blRepository.save({...newBonDeLiv});
+        const blname = `${newBonDeLiv.id}-${currentDate.toISOString().slice(0, 10)}`;
+        const bl=await this.blRepository.save({blname:blname,...newBonDeLiv});
         return bl
       }
 
