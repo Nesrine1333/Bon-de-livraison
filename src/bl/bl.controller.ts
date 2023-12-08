@@ -277,7 +277,7 @@ export class BlController {
         const textTitle2 = 'Information Expediteur';
         const textTitle3 = 'Information Destinateur';
         
-        const text = `${text2.join('\n')}\n\n${text3.join('\n')}`;
+        const text = `${text2.join('\n')}\n\n\n${text3.join('\n')}`;
         
         pdfDoc.y = recyPosition + 10;
         
@@ -320,7 +320,7 @@ export class BlController {
       
 
       const table2 = {
-        title: "Details",
+        title: "",
         headers: [
          { label: "Description",headerColor:"#1765d1", headerOpacity:1  },
          { label: "Montant",headerColor:"#1765d1", headerOpacity:1 },
@@ -517,6 +517,11 @@ export class BlController {
     res.sendFile(filePath);
     
 
+  }
+
+  @Get(':idUser/getAllBlByUser')
+  async getBlByUserId(@Param('idUser') userId: number): Promise<Bl[]> {
+    return await this.BlService.getBlByUserId(userId);
   }
 }
 function rgb(arg0: number, arg1: number, arg2: number) {
