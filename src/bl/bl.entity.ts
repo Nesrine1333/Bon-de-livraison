@@ -4,8 +4,8 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToOne, JoinColumn
 
 @Entity({name: 'bl'})
 export class Bl {
-  @PrimaryGeneratedColumn({ type: 'bigint'})
-  id: number;
+    @PrimaryGeneratedColumn({ type: 'bigint'})
+    id: number;
 
   //reference men win tji ?
 

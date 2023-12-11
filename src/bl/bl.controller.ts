@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Param, Delete, ParseIntPipe,Res } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Delete, ParseIntPipe,Res, Query, DefaultValuePipe } from '@nestjs/common';
 import { BlService } from './bl.service';
 import { CreateBlDto } from './DTO/CreateBl.dto';
 import { Bl } from './Bl.entity';
@@ -9,6 +9,7 @@ import { Response } from 'express';
 import {join } from 'path';
 import * as fs from 'fs';
 import { readdirSync } from 'fs';
+import { Pagination } from 'nestjs-typeorm-paginate';
 
 
   
@@ -528,10 +529,19 @@ export class BlController {
 
   }
 
-  @Get(':idUser/getAllBlByUser')
-  async getBlByUserId(@Param('idUser') userId: number): Promise<Bl[]> {
-    return await this.BlService.getBlByUserId(userId);
+  @Get(':idUser/getAllBlByUser/:page/:limit')
+  async getBlByUserId(@Param('idUser') userId: number,
+  @Param('page', ParseIntPipe) page: number ,
+    @Param('limit', ParseIntPipe) limit: number ,): Promise<Pagination<Bl>> {
+    await this.BlService.getBlByUserId(userId);
+    limit = limit > 100 ? 100 : limit;
+    return this.BlService.paginate({
+      page,
+      limit
+    });
   }
+
+
 }
 function rgb(arg0: number, arg1: number, arg2: number) {
     throw new Error('Function not implemented.');

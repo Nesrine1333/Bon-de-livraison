@@ -8,6 +8,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { User } from 'src/user/user.entity';
 import { AuthService } from 'src/auth/auth.service';
 
+import {
+  paginate,
+  Pagination,
+  IPaginationOptions,
+} from 'nestjs-typeorm-paginate';
 import { parse } from 'uuid';
 import * as uuid from 'uuid';
 import * as crypto from 'crypto';
@@ -136,6 +141,21 @@ export class BlService {
 
       async getBlByUserId(userId: number): Promise<Bl[]> {
         return this.blRepository.find({ where: { user: { id: userId } } });
+      }
+
+
+      async paginate(options: IPaginationOptions):Promise<Pagination<Bl>>{
+        const queryBuilder=this.blRepository.createQueryBuilder('bl');
+        queryBuilder.orderBy('bl.dateBl','DESC');
+        return paginate<Bl>(queryBuilder,options);
+      }
+
+      async getBlByDate(date:Date):Promise<Bl[]>{
+        return this.blRepository.find({where: {dateBl:date}})
+      }
+
+      async getBlByDestinataire(dest:string):Promise<Bl[]>{
+        return this.blRepository.find({where:{nomDest:dest}})
       }
 
       
