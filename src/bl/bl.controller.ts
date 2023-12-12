@@ -1,5 +1,7 @@
-import { Controller, Post, Get, Body, Param, Delete, ParseIntPipe,Res, Query, DefaultValuePipe } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Delete,ParseIntPipe,Res, Query, DefaultValuePipe, ParseArrayPipe } from '@nestjs/common';
 import { BlService } from './bl.service';
+
+
 import { CreateBlDto } from './DTO/CreateBl.dto';
 import { Bl } from './Bl.entity';
 import * as path from 'path';
@@ -9,7 +11,8 @@ import { Response } from 'express';
 import {join } from 'path';
 import * as fs from 'fs';
 import { readdirSync } from 'fs';
-import { Pagination } from 'nestjs-typeorm-paginate';
+import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
+import { ICustomPaginationOptions } from './DTO/ICustomPaginationOptions';
 
 
   
@@ -529,21 +532,92 @@ export class BlController {
 
   }
 
-  @Get(':idUser/getAllBlByUser/:page/:limit')
-  async getBlByUserId(@Param('idUser') userId: number,
-  @Param('page', ParseIntPipe) page: number ,
-    @Param('limit', ParseIntPipe) limit: number ,): Promise<Pagination<Bl>> {
-    await this.BlService.getBlByUserId(userId);
-    limit = limit > 100 ? 100 : limit;
-    return this.BlService.paginate({
+  @Get(':idUser/getAllBlByUser')
+  async getBlByUserId(
+    @Param('idUser', ParseIntPipe) userId: number,
+    @Query('page') page: number=1,
+  ): Promise<Bl[]> {
+    const options: IPaginationOptions = {
       page,
-      limit
-    });
+      limit: 10,
+      route: `${userId}`,
+    };
+  
+    return this.BlService.paginate(userId, options);
   }
 
+  @Get(':dest/getAllBlByDest')
+  async getBlByDest(
+    @Param('dest') dest: string,
+    @Query('page') page: number=1 ,
+  ): Promise<Bl[]> {
+    const options: IPaginationOptions = {
+      page,
+      limit: 10,
+      route: `${dest}`,
+    };
+  
+    return this.BlService.getBlByDestinataire(dest, options);
+  }
 
+  @Get(':date/byDate')
+  async getBlByDate(
+    @Param('date') dateString: Date,
+    @Query('page') page: number=1,
+  ): Promise<Bl[]> {
+   
+    
+    const options: IPaginationOptions = {
+      page,
+      limit: 10,
+      route: `${dateString}`, 
+    };
+
+    return this.BlService.getBlByDate(dateString, options);
+  }
+
+  
+  @Get(':name/getAllBlByName')
+  async getBlByName(
+    @Param('name') name: string,
+    @Query('page') page: number=1,
+  ): Promise<Bl[]> {
+    const options: IPaginationOptions = {
+      page,
+      limit: 10,
+      route: `${name}`, 
+    };
+  
+    return this.BlService.getBlByName(name, options);
+  }
+
+  @Get(':idUser/getAllBlByUserFilter')
+  async getBlByUserIdAndFiltrage(
+    @Param('idUser', ParseIntPipe) userId: number,
+    @Query('page') page: number=1,
+    @Query('dateBl') dateBl?: Date,
+    @Query('nomDest') nomDest?: string,
+    @Query('blname') blname?: string,
+  ): Promise<Bl[]> {
+    const options: ICustomPaginationOptions = {
+      page,
+      limit: 10,
+      route: `${userId}`,
+      filters: {
+        dateBl,
+        nomDest,
+        blname,
+      },
+    };
+  
+    return this.BlService.paginateFiltrage(userId, options);
+  }
+  
 }
 function rgb(arg0: number, arg1: number, arg2: number) {
     throw new Error('Function not implemented.');
 }
+
+
+
 
