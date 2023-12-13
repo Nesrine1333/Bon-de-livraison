@@ -548,22 +548,22 @@ export class BlController {
   return this.BlService.paginate(userId, options);
 }
   
-    @Get(':dest/getAllBlByDest/:page/:limit')
-    async getBlByDest(
+    @Get(':idUser/:dest/getAllBlByDest/:page/:limit')
+    async getBlByDest(@Param('idUser', ParseIntPipe) userId: number,
       @Param('dest') dest: string,
       @Param('page', ParseIntPipe) page: number,@Param('limit', ParseIntPipe) limit: number  ,
     ): Promise<Bl[]> {
       const options: IPaginationOptions = {
         page,
         limit: 10,
-        route: `${dest}/getAllBlByDest`,
+        route: `${userId}/${dest}/getAllBlByDest`,
       };
 
-      return this.BlService.getBlByDestinataire(dest, options);
+      return this.BlService.getBlByDestinataire(userId,dest, options);
     }
 
-    @Get(':date/byDate/:page/:limit')
-    async getBlByDate(
+    @Get(':idUser/:date/byDate/:page/:limit')
+    async getBlByDate(@Param('idUser', ParseIntPipe) userId: number,
       @Param('date') dateString: Date,
       @Param('page', ParseIntPipe) page: number,@Param('limit', ParseIntPipe) limit: number ,
     ): Promise<Bl[]> {
@@ -571,38 +571,38 @@ export class BlController {
       const options: IPaginationOptions = {
         page,
         limit,
-        route: `${dateString}/byDate`, 
+        route: `${userId}/${dateString}/byDate`, 
       };
 
-  return this.BlService.getBlByDate(dateString, options);
+  return this.BlService.getBlByDate(userId,dateString, options);
 }
 
 
-  @Get(':name/getAllBlByName/:page/:limit')
-  async getBlByName(
+  @Get(':idUser/:name/getAllBlByName/:page/:limit')
+  async getBlByName(@Param('idUser', ParseIntPipe) userId: number,
     @Param('name') name: string,
-    @Query('page') page: number,@Param('limit', ParseIntPipe) limit: number ,
+    @Param('page', ParseIntPipe) page: number,@Param('limit', ParseIntPipe) limit: number ,
   ): Promise<Bl[]> {
     const options: IPaginationOptions = {
       page,
       limit ,
-      route: `${name}/getAllBlByName`, 
+      route: `${userId}/${name}/getAllBlByName`, 
     };
 
-  return this.BlService.getBlByName(name, options);
+  return this.BlService.getBlByName(userId,name, options);
 }
 
-@Get(':idUser/getAllBlByUserFilter')
+@Get(':idUser/getAllBlByUserFilter/:page/:limit')
 async getBlByUserIdAndFiltrage(
   @Param('idUser', ParseIntPipe) userId: number,
-  @Query('page') page: number=1,
+  @Param('page', ParseIntPipe) page: number,@Param('limit', ParseIntPipe) limit: number,
   @Query('dateBl') dateBl?: Date,
   @Query('nomDest') nomDest?: string,
-  @Query('blname') blname?: string,
+  @Query('blname') blname?: string, 
 ): Promise<Bl[]> {
   const options: ICustomPaginationOptions = {
     page,
-    limit: 10,
+    limit,
     route: `${userId}`,
     filters: {
       dateBl,
