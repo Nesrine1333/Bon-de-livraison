@@ -7,6 +7,9 @@ import { CreateBlDto } from './DTO/CreateBl.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from 'src/user/user.entity';
 import { AuthService } from 'src/auth/auth.service';
+import { ICustomPaginationOptions } from './DTO/ICustomPaginationOptions';
+
+
 
 import {
   paginate,
@@ -95,7 +98,7 @@ export class BlService {
         const blname = `${newBonDeLiv.id}-${currentDate.toISOString().slice(0, 10)}`;
         const bl=await this.blRepository.save({blname:blname,...newBonDeLiv});
         return bl
-      }
+      } 
 
     // find All BLs
     findAll(): Promise<Bl[]> {
@@ -143,23 +146,60 @@ export class BlService {
         return this.blRepository.find({ where: { user: { id: userId } } });
       }
 
-
-      async paginate(options: IPaginationOptions):Promise<Pagination<Bl>>{
-        const queryBuilder=this.blRepository.createQueryBuilder('bl');
-        queryBuilder.orderBy('bl.dateBl','DESC');
-        return paginate<Bl>(queryBuilder,options);
-      }
-
-      async getBlByDate(date:Date):Promise<Bl[]>{
-        return this.blRepository.find({where: {dateBl:date}})
-      }
-
-      async getBlByDestinataire(dest:string):Promise<Bl[]>{
-        return this.blRepository.find({where:{nomDest:dest}})
-      }
-
+      async paginate(userId: number, options: IPaginationOptions): Promise<Bl[]> {
+        const queryBuilder = this.blRepository.createQueryBuilder('bl');
+        queryBuilder.where('bl.userId = :userId', { userId });
+        queryBuilder.orderBy('bl.dateBl', 'DESC');
       
-  }
-        
-   
+        const paginationResult = await paginate<Bl>(queryBuilder, options);
+        const items: Bl[] = paginationResult.items;
+        return items;
+      }
+
+      async getBlByDate(dateBl: Date, options: IPaginationOptions): Promise<Bl[]> {
+        const queryBuilder = this.blRepository.createQueryBuilder('bl');
+        queryBuilder.where('bl.dateBl = :date', { date: dateBl });
+        const paginationResult = await paginate<Bl>(queryBuilder, options);
+        const items: Bl[] = paginationResult.items;
+        return items;
+      }
+      
+    
+
+      async getBlByDestinataire(nomDest:string , options: IPaginationOptions):Promise<Bl[]>{
+        const queryBuilder = this.blRepository.createQueryBuilder('bl');
+        queryBuilder.where('bl.nomDest = :dest', { dest: nomDest });
+        const paginationResult = await paginate<Bl>(queryBuilder, options);
+        const items: Bl[] = paginationResult.items;
+        return items;    
+        }
+
+        async getBlByName(blname:string , options: IPaginationOptions):Promise<Bl[]>{
+          const queryBuilder = this.blRepository.createQueryBuilder('bl');
+          queryBuilder.where('bl.blname = :name', { name: blname });
+          const paginationResult = await paginate<Bl>(queryBuilder, options);
+          const items: Bl[] = paginationResult.items;
+          return items;          
+           }
+
+
+           async paginateFiltrage(userId: number, options: ICustomPaginationOptions): Promise<Bl[]> {
+            const queryBuilder = this.blRepository.createQueryBuilder('bl');
+            queryBuilder.where('bl.userId = :userId', { userId });
+            if (options.filters && options.filters.dateBl) {
+                queryBuilder.andWhere('bl.dateBl = :dateBl', { dateBl: options.filters.dateBl });
+            }
+            if (options.filters && options.filters.nomDest) {
+                queryBuilder.andWhere('bl.nomDest = :nomDest', { nomDest: options.filters.nomDest });
+            }
+            if (options.filters && options.filters.blname) {
+                queryBuilder.andWhere('bl.blname = :blname', { blname: options.filters.blname });
+            }    
+            const paginationResult = await paginate<Bl>(queryBuilder, options);
+            const items: Bl[] = paginationResult.items;
+            return items;
+        }
+    
+
+}
 

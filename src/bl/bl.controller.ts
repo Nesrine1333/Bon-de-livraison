@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Param, Delete, ParseIntPipe,Res, Query, DefaultValuePipe } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Delete, ParseIntPipe,Res,DefaultValuePipe,Query } from '@nestjs/common';
 import { BlService } from './bl.service';
 import { CreateBlDto } from './DTO/CreateBl.dto';
 import { Bl } from './Bl.entity';
@@ -9,7 +9,8 @@ import { Response } from 'express';
 import {join } from 'path';
 import * as fs from 'fs';
 import { readdirSync } from 'fs';
-import { Pagination } from 'nestjs-typeorm-paginate';
+import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
+import { ICustomPaginationOptions } from './DTO/ICustomPaginationOptions';
 
 
   
@@ -120,8 +121,7 @@ export class BlController {
           day: '2-digit',
         });
 
-        pdfDoc.moveDown()
-        .moveDown()  
+        pdfDoc
           .text(`Bon de Livraison No: ${bl.reference}`, { align: 'center', ...textOptions })
           .text(`Date d'enlévement:${formattedDate}`, { align: 'center',continued:true, ...textOptions })
           .image(imagePath, xUpperRight, yUpperRight, { width: 80 })
@@ -222,13 +222,13 @@ export class BlController {
           .moveDown();
         
 
-          const width = pdfDoc.widthOfString('Dates pervisionelles');
+         /* const width = pdfDoc.widthOfString('Dates pervisionelles');
           const height = pdfDoc.currentLineHeight(0);
-          pdfDoc.fontSize(12)
+         /* pdfDoc.fontSize(12)
           .font('Helvetica-Bold')
           .underline(20, 0, width, height)
           .text(`Dates pervisionelles`, { align: 'left'}) // Set font size to 16
-            .moveDown();
+            .moveDown();*/
 
           pdfDoc.fontSize(9)
           .font('Helvetica')
@@ -529,17 +529,92 @@ export class BlController {
 
   }
 
-  @Get(':idUser/getAllBlByUser/:page/:limit')
-  async getBlByUserId(@Param('idUser') userId: number,
-  @Param('page', ParseIntPipe) page: number ,
-    @Param('limit', ParseIntPipe) limit: number ,): Promise<Pagination<Bl>> {
-    await this.BlService.getBlByUserId(userId);
-    limit = limit > 100 ? 100 : limit;
-    return this.BlService.paginate({
-      page,
-      limit
-    });
+  @Get(':idUser/getAllBlByUser')
+  async getBlByUserId(@Param('idUser') userId: number): Promise<Bl[]> {
+    return await this.BlService.getBlByUserId(userId);
   }
+
+
+  @Get(':idUser/getAllBlByUser/:page/:limit')
+  async pagginate(@Param('idUser',new ParseIntPipe()) userId: number,
+  @Param('page', ParseIntPipe) page: number,@Param('limit', ParseIntPipe) limit: number ,
+): Promise<Bl[]> {
+  const options: IPaginationOptions = {
+    page,
+    limit,
+    route: `${userId}/getBLPagination`,
+  };
+
+  return this.BlService.paginate(userId, options);
+}
+  
+    @Get(':dest/getAllBlByDest/:page/:limit')
+    async getBlByDest(
+      @Param('dest') dest: string,
+      @Param('page', ParseIntPipe) page: number,@Param('limit', ParseIntPipe) limit: number  ,
+    ): Promise<Bl[]> {
+      const options: IPaginationOptions = {
+        page,
+        limit: 10,
+        route: `${dest}/getAllBlByDest`,
+      };
+
+      return this.BlService.getBlByDestinataire(dest, options);
+    }
+
+    @Get(':date/byDate/:page/:limit')
+    async getBlByDate(
+      @Param('date') dateString: Date,
+      @Param('page', ParseIntPipe) page: number,@Param('limit', ParseIntPipe) limit: number ,
+    ): Promise<Bl[]> {
+      
+      const options: IPaginationOptions = {
+        page,
+        limit,
+        route: `${dateString}/byDate`, 
+      };
+
+  return this.BlService.getBlByDate(dateString, options);
+}
+
+
+  @Get(':name/getAllBlByName/:page/:limit')
+  async getBlByName(
+    @Param('name') name: string,
+    @Query('page') page: number,@Param('limit', ParseIntPipe) limit: number ,
+  ): Promise<Bl[]> {
+    const options: IPaginationOptions = {
+      page,
+      limit ,
+      route: `${name}/getAllBlByName`, 
+    };
+
+  return this.BlService.getBlByName(name, options);
+}
+
+@Get(':idUser/getAllBlByUserFilter')
+async getBlByUserIdAndFiltrage(
+  @Param('idUser', ParseIntPipe) userId: number,
+  @Query('page') page: number=1,
+  @Query('dateBl') dateBl?: Date,
+  @Query('nomDest') nomDest?: string,
+  @Query('blname') blname?: string,
+): Promise<Bl[]> {
+  const options: ICustomPaginationOptions = {
+    page,
+    limit: 10,
+    route: `${userId}`,
+    filters: {
+      dateBl,
+      nomDest,
+      blname,
+    },
+  };
+
+  return this.BlService.paginateFiltrage(userId, options);
+}
+
+
 
 
 }

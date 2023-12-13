@@ -146,6 +146,4 @@ export class UploadGroupeService {
     
   }
 
-
-
 }

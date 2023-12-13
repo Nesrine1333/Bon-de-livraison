@@ -1,7 +1,8 @@
-import { BadRequestException, Controller, InternalServerErrorException, Param, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Header, InternalServerErrorException, Param, Post, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { UploadGroupeService } from './upload-groupe.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthService } from 'src/auth/auth.service';
+import { Response } from 'express';
 
 @Controller('upload-groupe')
 export class UploadGroupeController {
@@ -32,6 +33,20 @@ export class UploadGroupeController {
         }
     }
 
+    @Get('download')
+    @Header('Content-Type', 'text/xlsx')
+    async generateExcelFile(@Res() res: Response)//: Promise<void> 
+    {
+      const filePath = await this.uploadServicce.ExcelFile();
+  
+      res.download(filePath, 'exel_data.xlsx', (err) => {
+        if (err) {
+          console.error('Error downloading file:', err);
+          res.status(500).send('Error downloading file');
+          res.download('$(filePath)');
+      
+        }});
+
 
 
 
@@ -39,3 +54,8 @@ export class UploadGroupeController {
 
 //prix contre remborcement - livraison
 }
+}
+
+
+
+
