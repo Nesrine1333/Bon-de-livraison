@@ -11,8 +11,8 @@ import { AuthModule } from 'src/auth/auth.module';
 import { UserModule } from 'src/user/user.module';
 
 import { User } from 'src/user/user.entity';
-import { BlService } from 'src/bl/bl.service';
-import { BlModule } from 'src/bl/bl.module';
+import { BlService } from 'src/Bl/Bl.service';
+import { BlModule } from 'src/Bl/Bl.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User]),AuthModule,UserModule,BlModule],

@@ -22,7 +22,7 @@ export class AuthController {
 
 
   //logo n est pas obligatoire dans register
-  @Post('register')
+  @Post('register') //done
   @UseInterceptors(FileInterceptor('logo'))
   async register(
     @Body() user: User,

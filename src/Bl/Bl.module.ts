@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { BlController } from './bl.controller';
-import { BlService } from './bl.service';
+import { BlController } from './Bl.controller';
+import { BlService } from './Bl.service';
 import { Bl } from './Bl.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/user/user.entity';

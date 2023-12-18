@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { BlService } from './bl/bl.service';
-import { BlController } from './bl/bl.controller';
+import { BlService } from './Bl/Bl.service';
+import { BlController } from './Bl/Bl.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Bl } from './bl/Bl.entity';
-import { BlModule } from './bl/bl.module';
+import { Bl } from './Bl/Bl.entity';
+import { BlModule } from './Bl/Bl.module';
 import { ConfigModule } from '@nestjs/config';
 import { UploadGroupeService } from './upload-groupe/upload-groupe.service';
 import { UploadGroupeController } from './upload-groupe/upload-groupe.controller';
@@ -31,9 +31,9 @@ import { PdfdownloadService } from './pdfdowload/pdfdowload.service';
         password: '',
         database: 'baseBDLkahaw22',
         entities: [Bl, User],
-   //synchronize: true, 
+   synchronize: true, 
         //wakt database deja tabda creer naamel synchronise false 
-synchronize:false,
+   //synchronize:false,
       }),
       BlModule,
   
