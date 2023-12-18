@@ -1,7 +1,7 @@
-import { Bl } from "src/bl/Bl.entity";
+import { Bl } from "src/Bl/Bl.entity";
 import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 
-@Entity('user')
+@Entity('User')
 export class User {
     @PrimaryGeneratedColumn()
     id: number;

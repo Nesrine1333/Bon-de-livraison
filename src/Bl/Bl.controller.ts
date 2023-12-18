@@ -1,5 +1,5 @@
 import { Controller, Post, Get, Body, Param, Delete, ParseIntPipe,Res,DefaultValuePipe,Query } from '@nestjs/common';
-import { BlService } from './bl.service';
+import { BlService } from './Bl.service';
 import { CreateBlDto } from './DTO/CreateBl.dto';
 import { Bl } from './Bl.entity';
 import * as path from 'path';
@@ -390,7 +390,7 @@ export class BlController {
          // Format date as 'YYYY-MM-DD'
     
         // Set headers for PDF download
-        const dirPath = path.resolve(process.cwd(), '../../../BonDeLivraison');
+        const dirPath = path.resolve(process.cwd(), '../BonDeLivraison');
         const dirPath2 = path.resolve(process.cwd(), 'Downloads');
 
 
@@ -409,9 +409,16 @@ export class BlController {
         console.log('File path:', filePathlocal );
   
         await new Promise<void>((resolve, reject) => {
-          pdfDoc.pipe(fs.createWriteStream(filePathlocal))
+          pdfDoc.pipe(fs.createWriteStream(filePathlocal, { mode: 0o644 }))
             .on('finish', () => {
               console.log('File writing finished');
+        
+              // Ensure that the destination directory exists
+              if (!fs.existsSync(dirPath2)) {
+                console.log('Creating directory: Downloads');
+                fs.mkdirSync(dirPath2, { recursive: true });
+              }
+        
               // Now, copy the file to the second directory
               fs.copyFile(filePathlocal, filePathserver, (err) => {
                 if (err) {
