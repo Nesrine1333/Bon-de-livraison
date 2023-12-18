@@ -38,6 +38,6 @@ export class User {
     resetCode: number;
 
    @OneToMany(() => Bl, (bonDeLiv) => bonDeLiv.user)
-  bonDeLiv: Bl[];
+   bonDeLiv: Bl[];
 
 }
