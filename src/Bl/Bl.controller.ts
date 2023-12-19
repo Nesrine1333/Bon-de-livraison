@@ -562,7 +562,7 @@ export class BlController {
     ): Promise<Bl[]> {
       const options: IPaginationOptions = {
         page,
-        limit: 10,
+        limit,
         route: `${userId}/${dest}/getAllBlByDest`,
       };
 
