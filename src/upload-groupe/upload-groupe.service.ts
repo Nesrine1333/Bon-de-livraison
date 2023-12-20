@@ -123,7 +123,7 @@ export class UploadGroupeService {
       const worksheet = workbook.addWorksheet('EXEL');
   
       // Add headers
-      worksheet.addRow(['nom', 'numTelephone1','numTelephone2','address','gov', 'delegation', 'desc','prixHliv']);
+      worksheet.addRow(['nom', 'numTelephone1','numTelephone2','address','gov', 'desc','prixHliv','reference']);
   
       // Save the workbook to a file
       const filePath = `exel_data.xlsx${Date.now()}.xlsx`;
