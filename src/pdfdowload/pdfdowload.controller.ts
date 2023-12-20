@@ -12,7 +12,7 @@ import * as fs from 'fs';
 import { PdfdownloadService } from './pdfdowload.service';
 import * as PDFDocument from 'pdfkit';
 import { AuthService } from 'src/auth/auth.service';
-import { BlService } from '../bl/bl.service';
+import { BlService } from '../Bl/Bl.service';
 import { promises as fsPromises } from 'fs';
 
 //import { table, tableCell, tableRow } from 'pdfkit-table';

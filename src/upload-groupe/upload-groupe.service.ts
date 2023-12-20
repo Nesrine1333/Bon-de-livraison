@@ -8,7 +8,7 @@ import { parse } from 'uuid';
 import * as uuid from 'uuid';
 import * as crypto from 'crypto';
 import { Workbook } from 'exceljs';
-import { Bl } from '../bl/bl.entity';
+import { Bl } from '../Bl/Bl.entity';
 import { AuthService } from 'src/auth/auth.service';
 import { map } from 'rxjs';
 
