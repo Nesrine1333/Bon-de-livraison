@@ -7,6 +7,7 @@ export class Bl {
     @PrimaryGeneratedColumn({ type: 'bigint'})
     id: number;
 
+
   //reference men win tji ?
 
     @Column()

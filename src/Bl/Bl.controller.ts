@@ -1,4 +1,5 @@
 import { Controller, Post, Get, Body, Param, Delete, ParseIntPipe,Res,DefaultValuePipe,Query } from '@nestjs/common';
+
 import { BlService } from './Bl.service';
 import { CreateBlDto } from './DTO/CreateBl.dto';
 import { Bl } from './Bl.entity';
@@ -11,6 +12,7 @@ import * as fs from 'fs';
 import { readdirSync } from 'fs';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { ICustomPaginationOptions } from './DTO/ICustomPaginationOptions';
+
 
 
   
@@ -230,6 +232,7 @@ export class BlController {
           .text(`Dates pervisionelles`, { align: 'left'}) // Set font size to 16
             .moveDown();*/
 
+
           pdfDoc.fontSize(9)
           .font('Helvetica')
             .text(`Date date a partir de date`, { align: 'left'}) // Set font size to 14
@@ -392,6 +395,7 @@ export class BlController {
         // Set headers for PDF download
         const dirPath = path.resolve(process.cwd(), '../BonDeLivraison');
         const dirPath2 = path.resolve(process.cwd(), 'Downloads');
+
 
 
         console.log('Directory path:', dirPath);
