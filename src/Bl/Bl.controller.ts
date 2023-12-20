@@ -1,4 +1,5 @@
-import { Controller, Post, Get, Body, Param, Delete, ParseIntPipe,Res } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Delete, ParseIntPipe,Res,DefaultValuePipe,Query } from '@nestjs/common';
+
 import { BlService } from './Bl.service';
 import { CreateBlDto } from './DTO/CreateBl.dto';
 import { Bl } from './Bl.entity';
@@ -9,6 +10,9 @@ import { Response } from 'express';
 import {join } from 'path';
 import * as fs from 'fs';
 import { readdirSync } from 'fs';
+import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
+import { ICustomPaginationOptions } from './DTO/ICustomPaginationOptions';
+
 
 
   
@@ -119,8 +123,7 @@ export class BlController {
           day: '2-digit',
         });
 
-        pdfDoc.moveDown()
-        .moveDown()  
+        pdfDoc
           .text(`Bon de Livraison No: ${bl.reference}`, { align: 'center', ...textOptions })
           .text(`Date d'enlévement:${formattedDate}`, { align: 'center',continued:true, ...textOptions })
           .image(imagePath, xUpperRight, yUpperRight, { width: 80 })
@@ -221,13 +224,14 @@ export class BlController {
           .moveDown();
         
 
-          const width = pdfDoc.widthOfString('Dates pervisionelles');
+         /* const width = pdfDoc.widthOfString('Dates pervisionelles');
           const height = pdfDoc.currentLineHeight(0);
-          pdfDoc.fontSize(12)
+         /* pdfDoc.fontSize(12)
           .font('Helvetica-Bold')
           .underline(20, 0, width, height)
           .text(`Dates pervisionelles`, { align: 'left'}) // Set font size to 16
-            .moveDown();
+            .moveDown();*/
+
 
           pdfDoc.fontSize(9)
           .font('Helvetica')
@@ -390,7 +394,8 @@ export class BlController {
     
         // Set headers for PDF download
         const dirPath = path.resolve(process.cwd(), '../BonDeLivraison');
-        const dirPath2 = path.resolve(process.cwd(), 'downloads');
+        const dirPath2 = path.resolve(process.cwd(), 'Downloads');
+
 
 
         console.log('Directory path:', dirPath);
@@ -411,6 +416,13 @@ export class BlController {
           pdfDoc.pipe(fs.createWriteStream(filePathlocal, { mode: 0o644 }))
             .on('finish', () => {
               console.log('File writing finished');
+        
+              // Ensure that the destination directory exists
+              if (!fs.existsSync(dirPath2)) {
+                console.log('Creating directory: Downloads');
+                fs.mkdirSync(dirPath2, { recursive: true });
+              }
+        
               // Now, copy the file to the second directory
               fs.copyFile(filePathlocal, filePathserver, (err) => {
                 if (err) {
@@ -532,6 +544,90 @@ export class BlController {
   async getBlByUserId(@Param('idUser') userId: number): Promise<Bl[]> {
     return await this.BlService.getBlByUserId(userId);
   }
+
+
+  @Get(':idUser/getAllBlByUser/:page/:limit')
+  async pagginate(@Param('idUser',new ParseIntPipe()) userId: number,
+  @Param('page', ParseIntPipe) page: number,@Param('limit', ParseIntPipe) limit: number ,
+): Promise<Bl[]> {
+  const options: IPaginationOptions = {
+    page,
+    limit,
+    route: `${userId}/getBLPagination`,
+  };
+
+  return this.BlService.paginate(userId, options);
+}
+  
+    @Get(':idUser/:dest/getAllBlByDest/:page/:limit')
+    async getBlByDest(@Param('idUser', ParseIntPipe) userId: number,
+      @Param('dest') dest: string,
+      @Param('page', ParseIntPipe) page: number,@Param('limit', ParseIntPipe) limit: number  ,
+    ): Promise<Bl[]> {
+      const options: IPaginationOptions = {
+        page,
+        limit,
+        route: `${userId}/${dest}/getAllBlByDest`,
+      };
+
+      return this.BlService.getBlByDestinataire(userId,dest, options);
+    }
+
+    @Get(':idUser/:date/byDate/:page/:limit')
+    async getBlByDate(@Param('idUser', ParseIntPipe) userId: number,
+      @Param('date') dateString: Date,
+      @Param('page', ParseIntPipe) page: number,@Param('limit', ParseIntPipe) limit: number ,
+    ): Promise<Bl[]> {
+      
+      const options: IPaginationOptions = {
+        page,
+        limit,
+        route: `${userId}/${dateString}/byDate`, 
+      };
+
+  return this.BlService.getBlByDate(userId,dateString, options);
+}
+
+
+  @Get(':idUser/:name/getAllBlByName/:page/:limit')
+  async getBlByName(@Param('idUser', ParseIntPipe) userId: number,
+    @Param('name') name: string,
+    @Param('page', ParseIntPipe) page: number,@Param('limit', ParseIntPipe) limit: number ,
+  ): Promise<Bl[]> {
+    const options: IPaginationOptions = {
+      page,
+      limit ,
+      route: `${userId}/${name}/getAllBlByName`, 
+    };
+
+  return this.BlService.getBlByName(userId,name, options);
+}
+
+@Get(':idUser/getAllBlByUserFilter/:page/:limit')
+async getBlByUserIdAndFiltrage(
+  @Param('idUser', ParseIntPipe) userId: number,
+  @Param('page', ParseIntPipe) page: number,@Param('limit', ParseIntPipe) limit: number,
+  @Query('dateBl') dateBl?: Date,
+  @Query('nomDest') nomDest?: string,
+  @Query('blname') blname?: string, 
+): Promise<Bl[]> {
+  const options: ICustomPaginationOptions = {
+    page,
+    limit,
+    route: `${userId}`,
+    filters: {
+      dateBl,
+      nomDest,
+      blname,
+    },
+  };
+
+  return this.BlService.paginateFiltrage(userId, options);
+}
+
+
+
+
 }
 function rgb(arg0: number, arg1: number, arg2: number) {
     throw new Error('Function not implemented.');

@@ -33,12 +33,21 @@ export class AuthService {
   }
 
 
-  async create(data: any): Promise<User> {
+  async create(data: any): Promise<{ user?: User; message?: string }> {
     const idd=uuidv4()
-      return this.userRepository.save({
-        id:this.uuidv4ToInt(idd),
-        ...data});
+    const existingUser=await this.findOne(data.email);
+     if (existingUser) {
+    // If the email already exists, throw an exception or return an error message
+    return { message: 'Email already exists. Please choose a different email.' };
+  }else{
+  const newUser = await this.userRepository.save({
+    id: this.uuidv4ToInt(idd),
+    ...data
+  });
 
+  // Return the created user along with a success message
+  return { user: newUser, message: 'User created successfully.' };
+  }
   }
 
   // improve error handling 

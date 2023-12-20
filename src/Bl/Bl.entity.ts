@@ -2,10 +2,11 @@
 import { User } from 'src/user/user.entity';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
 
-@Entity({name: 'bl'})
+@Entity({name: 'Bl'})
 export class Bl {
-  @PrimaryGeneratedColumn({ type: 'bigint'})
-  id: number;
+    @PrimaryGeneratedColumn({ type: 'bigint'})
+    id: number;
+
 
   //reference men win tji ?
 
@@ -30,7 +31,7 @@ export class Bl {
     @Column()
     gov:string;
 
-    @Column()
+    @Column({ nullable: true })
     delegation:string;
 
     //Colis
@@ -53,7 +54,7 @@ export class Bl {
     @Column()
     reference:string;
 
-    @Column()
+    @Column({ nullable: true })
     blname:string;
 
     @ManyToOne(()=> User,(user)=> user.bonDeLiv)

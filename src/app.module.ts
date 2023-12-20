@@ -33,7 +33,8 @@ import { PdfdownloadService } from './pdfdowload/pdfdowload.service';
         entities: [Bl, User],
    synchronize: true, 
         //wakt database deja tabda creer naamel synchronise false 
-   //synchronize:false,
+
+    //synchronize:false,
       }),
       BlModule,
   

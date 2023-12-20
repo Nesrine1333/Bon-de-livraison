@@ -1,7 +1,7 @@
 import { Bl } from "src/Bl/Bl.entity";
 import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 
-@Entity('user')
+@Entity('User')
 export class User {
     @PrimaryGeneratedColumn()
     id: number;
@@ -38,6 +38,6 @@ export class User {
     resetCode: number;
 
    @OneToMany(() => Bl, (bonDeLiv) => bonDeLiv.user)
-  bonDeLiv: Bl[];
+   bonDeLiv: Bl[];
 
 }

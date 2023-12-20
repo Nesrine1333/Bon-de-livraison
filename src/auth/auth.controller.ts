@@ -32,11 +32,7 @@ export class AuthController {
 
     let logoFileName: string | undefined;
 
-    if (logo) {
-      logoFileName = `${Date.now()}_${logo.originalname}`;
-      const filePath = path.join(__dirname, '..', '..', 'uploads', logoFileName);
-      await this.saveFile(logo.buffer, filePath);
-    }
+  
 
     const creatUser = await this.authService.create({
       ...user,
@@ -44,9 +40,22 @@ export class AuthController {
       logo: logoFileName,
     });
 
-    delete creatUser.password;
+    if (typeof creatUser === 'string') {
+      // Handle the case where there was an error (e.g., email already exists)
+      return { message: creatUser };
+    }else{
+        if (logo) {
+      logoFileName = `${Date.now()}_${logo.originalname}`;
+      const filePath = path.join(__dirname, '..', '..', 'uploads', logoFileName);
+      await this.saveFile(logo.buffer, filePath);
+    }
+      delete (creatUser as User).password;
 
-    return creatUser;
+  return creatUser;
+    }
+  
+    // User created successfully
+  
   }
 
   private saveFile(buffer: Buffer, filePath: string): Promise<void> {
