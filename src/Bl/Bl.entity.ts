@@ -30,7 +30,7 @@ export class Bl {
     @Column()
     gov:string;
 
-    @Column()
+    @Column({ nullable: true })
     delegation:string;
 
     //Colis
