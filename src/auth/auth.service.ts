@@ -72,14 +72,7 @@ generateRandomNumber(min: number, max: number): number {
   }
 
   // improve error handling 
-  async findOne(email: string): Promise<User | undefined> {
-    try {
-      const user = this.userRepository.findOne({ where: { email } });
-      return user;
-    } catch (error) {
-      return undefined;
-    }
-  }
+
   // improve error handling 
   async findOne(email: string): Promise<User | undefined> {
     try {
