@@ -80,6 +80,7 @@ export class UploadGroupeService {
         delegation:'',
         quantite: 1,
         user: user,
+
         external_ref: row[1]  ,
         nom_prenom: row[2] ,
         tel1:  row[3]  ,
@@ -105,7 +106,7 @@ export class UploadGroupeService {
     
     const blimportes=await this.blRepository.save(mapped);
      const updatePromises = blimportes.map(async (blEntity, index) => {
-    const blname = `${blEntity.id}-${currentDate.toISOString().slice(0, 10)}`;
+    const blname = `excel-${blEntity.id}-${currentDate.toISOString().slice(0, 10)}`;
     return this.blRepository.update(blEntity.id, { blname });
   });
 
@@ -123,7 +124,9 @@ export class UploadGroupeService {
   
       // Add headers
 
-      worksheet.addRow(['nexternal_ref', 'nom_prenom','tel1','tel2','echange', 'adresse','governorate','cr_bt','description']);
+
+      worksheet.addRow(['external_ref', 'nom_prenom','tel1','tel2','echange', 'adresse','governorate','cr_bt','description']);
+
 
   
       // Save the workbook to a file
