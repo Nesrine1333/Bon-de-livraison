@@ -3,7 +3,7 @@ import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 
 @Entity('User')
 export class User {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn( {type: 'bigint'})
     id: number;
 
     @Column()

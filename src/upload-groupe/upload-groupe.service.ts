@@ -78,21 +78,20 @@ export class UploadGroupeService {
           currentDate.getDate()
         ),
         delegation:'',
-        etatC: false,
         quantite: 1,
         user: user,
-        nomDest: row[1] ,
-        numTelephone1: row[2] ,
-        numTelephone2:  row[3] ,
-        address: row[4] ,
-        gov: row[5] ,
+        external_ref: row[1]  ,
+        nom_prenom: row[2] ,
+        tel1:  row[3]  ,
+        tel2: row[4]  ,
+        echange: row[5]  ,
         // ... other fields
-        desc: row[6] ,
-        prixHliv:   row[7],
+        adresse: row[6]  ,
+        governorate: row[7] ,
          // Default value
          // Default value
-        reference: row[8] ,
-       
+        cr_bt: row[8]  ,
+        description:row[9] ,
        
       }));
       // Map Excel data to Colis entity model, starting from the fourth row
@@ -124,7 +123,7 @@ export class UploadGroupeService {
   
       // Add headers
 
-      worksheet.addRow(['nom', 'numTelephone1','numTelephone2','address','gov', 'desc','prixHliv','reference']);
+      worksheet.addRow(['nexternal_ref', 'nom_prenom','tel1','tel2','echange', 'adresse','governorate','cr_bt','description']);
 
   
       // Save the workbook to a file
