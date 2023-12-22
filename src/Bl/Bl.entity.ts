@@ -6,59 +6,61 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToOne, JoinColumn
 export class Bl {
     @PrimaryGeneratedColumn({ type: 'bigint'})
     id: number;
-
   //reference men win tji ?
 
-    @Column()
-    dateBl: Date;
+  
 
-
+    @Column({ nullable: true })
+    external_ref:string;
   //Destinaraire
     @Column()
-    nomDest: string;
+    nom_prenom: string;
 
     @Column()
-    numTelephone1:string  ;
+    tel1:string  ;
 
     
     @Column()
-    numTelephone2:string  ;
+    tel2:string  ;
+
+    @Column({ nullable: true })
+    echange: boolean;
 
     @Column()
-    address:String;
+    adresse:String;
 
     @Column()
-    gov:string;
+    governorate:string;
+
+    @Column()
+    cr_bt: number |null;//cr_bt 
+
+    @Column()
+    description: string;
+
+    @Column({ nullable: true })
+    dateBl: Date;
 
     @Column({ nullable: true })
     delegation:string;
 
-    //Colis
 
-    @Column()
-    desc: string;
-
-   /* @Column()
-    prixLiv: number;//besh nzidu 3lih tva //shnuwa el fonction mta3 tva= 8.00=fraislivra*/
-
-    @Column()
-    prixHliv: number |null;//cr_bt 
-
-    @Column()
-    etatC: boolean;
-
-    @Column()
+    @Column({ nullable: true })
     quantite:number;
 
-    @Column()
-    reference:string;
 
     @Column({ nullable: true })
     blname:string;
 
+  
+    //Colis
     @ManyToOne(()=> User,(user)=> user.bonDeLiv)
     @JoinColumn({ name: 'userId'  })
     user: User
+
+   /* @Column()
+    prixLiv: number;//besh nzidu 3lih tva //shnuwa el fonction mta3 tva= 8.00=fraislivra*/
+
 
 
 }

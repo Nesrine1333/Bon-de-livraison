@@ -7,6 +7,7 @@ import { CreateBlDto } from './DTO/CreateBl.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from 'src/user/user.entity';
 import { AuthService } from 'src/auth/auth.service';
+
 import { ICustomPaginationOptions } from './DTO/ICustomPaginationOptions';
 
 
@@ -16,6 +17,7 @@ import {
   Pagination,
   IPaginationOptions,
 } from 'nestjs-typeorm-paginate';
+
 import { parse } from 'uuid';
 import * as uuid from 'uuid';
 import * as crypto from 'crypto';
@@ -98,6 +100,7 @@ export class BlService {
         const blname = `${newBonDeLiv.id}-${currentDate.toISOString().slice(0, 10)}`;
         const bl=await this.blRepository.save({blname:blname,...newBonDeLiv});
         return bl
+
       } 
 
     // find All BLs
@@ -145,6 +148,7 @@ export class BlService {
       async getBlByUserId(userId: number): Promise<Bl[]> {
         return this.blRepository.find({ where: { user: { id: userId } } });
       }
+
 
       async paginate(userId: number, options: IPaginationOptions): Promise<Bl[]> {
         const queryBuilder = this.blRepository.createQueryBuilder('bl');
@@ -202,4 +206,5 @@ export class BlService {
     
 
 }
+
 

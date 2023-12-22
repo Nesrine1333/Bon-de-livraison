@@ -1,4 +1,5 @@
 import { Controller, Post, Get, Body, Param, Delete, ParseIntPipe,Res,DefaultValuePipe,Query } from '@nestjs/common';
+
 import { BlService } from './Bl.service';
 import { CreateBlDto } from './DTO/CreateBl.dto';
 import { Bl } from './Bl.entity';
@@ -11,6 +12,7 @@ import * as fs from 'fs';
 import { readdirSync } from 'fs';
 import { IPaginationOptions, Pagination } from 'nestjs-typeorm-paginate';
 import { ICustomPaginationOptions } from './DTO/ICustomPaginationOptions';
+
 
 
   
@@ -122,7 +124,7 @@ export class BlController {
         });
 
         pdfDoc
-          .text(`Bon de Livraison No: ${bl.reference}`, { align: 'center', ...textOptions })
+          .text(`Bon de Livraison No: ${bl.external_ref}`, { align: 'center', ...textOptions })
           .text(`Date d'enlévement:${formattedDate}`, { align: 'center',continued:true, ...textOptions })
           .image(imagePath, xUpperRight, yUpperRight, { width: 80 })
           .text(' ',{align:'center'})
@@ -136,11 +138,11 @@ export class BlController {
         .text(`Information Expediteur`, {continued:true })
         .text(`Information Destinateur`,{align:'right' })
         .text(`Nom:${user.nom}`, {continued:true, align: 'left' })
-        .text(`Nom:${bl.nomDest}`,{align:'right' })
+        .text(`Nom:${bl.nom_prenom}`,{align:'right' })
         .text(`MF:${user.matriculeFiscale}`, {continued:true, align: 'left'} )  
-        .text(`Tel:${bl.numTelephone1}`,{align:'right' })
+        .text(`Tel:${bl.tel1}`,{align:'right' })
         .text(`Adress:${user.adress}`, {continued:true, align: 'left' })  
-        .text(`Address:${bl.address}`,{align:'right' })
+        .text(`Address:${bl.adresse}`,{align:'right' })
         .text(`Gouvernorat:${user.gover}` ,{continued:true, align: 'left' })
         .text('',{align:'left'})
         .moveDown()
@@ -152,18 +154,18 @@ export class BlController {
         .moveDown();
         // Now add content to the right colum
 
-        const desc=bl.desc.toString();
+        const desc=bl.description.toString();
 
-        const prix=bl.prixHliv.toString();
+        const prix=bl.cr_bt.toString();
 
         const Livraison=user.fraisLivraison.toString();//user.frai
 
         const quantite=1. //bl.quantite.toString();
 
         const tableQuantite=quantite.toString();
-        const montant=(bl.prixHliv*quantite).toString();
+        const montant=(bl.cr_bt*quantite).toString();
 
-        const prixTot=(bl.prixHliv*quantite+user.fraisLivraison).toString();//prixLiv =userFrais
+        const prixTot=(bl.cr_bt*quantite+user.fraisLivraison).toString();//prixLiv =userFrais
 
         const addDivider = (x1, y1, x2, y2) => {
           pdfDoc
@@ -230,6 +232,7 @@ export class BlController {
           .text(`Dates pervisionelles`, { align: 'left'}) // Set font size to 16
             .moveDown();*/
 
+
           pdfDoc.fontSize(9)
           .font('Helvetica')
             .text(`Date date a partir de date`, { align: 'left'}) // Set font size to 14
@@ -238,7 +241,7 @@ export class BlController {
 
           pdfDoc.fontSize(9)
           .font('Helvetica')
-          .text(`Bon de Livraison No: ${bl.reference}`, { align: 'center'}) // Set font size to 18
+          .text(`Bon de Livraison No: ${bl.external_ref}`, { align: 'center'}) // Set font size to 18
             .moveDown();
 
           pdfDoc.fontSize(9)
@@ -272,9 +275,9 @@ export class BlController {
         ];
         
         const text3 = [
-          `Nom:${bl.nomDest}`,
-          `Tel:${bl.numTelephone1}`,
-          `Address:${bl.address}`
+          `Nom:${bl.nom_prenom}`,
+          `Tel:${bl.tel1}`,
+          `Address:${bl.adresse}`
         ];
         
         const textTitle2 = 'Information Expediteur';
@@ -315,12 +318,12 @@ export class BlController {
 
       pdfDoc.y = recyPosition+length+20;
     
-      const montant2=((bl.prixHliv*quantite)+user.fraisLivraison).toString();
+      const montant2=((bl.cr_bt*quantite)+user.fraisLivraison).toString();
 
-      const tva=((bl.prixHliv*quantite)+user.fraisLivraison)*0.19;
+      const tva=((bl.cr_bt*quantite)+user.fraisLivraison)*0.19;
 
 
-      const ttc=((bl.prixHliv*quantite)+user.fraisLivraison+tva).toString();
+      const ttc=((bl.cr_bt*quantite)+user.fraisLivraison+tva).toString();
 
       
 
@@ -392,6 +395,7 @@ export class BlController {
         // Set headers for PDF download
         const dirPath = path.resolve(process.cwd(), '../BonDeLivraison');
         const dirPath2 = path.resolve(process.cwd(), 'Downloads');
+
 
 
         console.log('Directory path:', dirPath);

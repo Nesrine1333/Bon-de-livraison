@@ -32,6 +32,47 @@ export class AuthService {
     return numericValue;
   }
 
+  generateRandomNumber(min: number, max: number): number {
+    // Generate a random number between min (inclusive) and max (exclusive)
+    return Math.floor(Math.random() * (max - min) + min);
+  }
+  
+  ref = (this.generateRandomNumber(1, 100)).toString();
+  
+  generateUniqueId(): number {
+    // Get the current timestamp
+    const timestamp = new Date().getTime();
+  
+    // Generate a random number (you may want to use a more sophisticated random number generator)
+    const random = Math.floor(Math.random() * 1000);
+  
+    // Combine timestamp and random number to create a unique ID
+    const uniqueId = parseInt(`${timestamp}${random}`, 10);
+  
+    return uniqueId;
+  }
+
+
+generateRandomNumber(min: number, max: number): number {
+    // Generate a random number between min (inclusive) and max (exclusive)
+    return Math.floor(Math.random() * (max - min) + min);
+  }
+  
+  ref = (this.generateRandomNumber(1, 100)).toString();
+  
+  generateUniqueId(): number {
+    // Get the current timestamp
+    const timestamp = new Date().getTime();
+  
+    // Generate a random number (you may want to use a more sophisticated random number generator)
+    const random = Math.floor(Math.random() * 1000);
+  
+    // Combine timestamp and random number to create a unique ID
+    const uniqueId = parseInt(`${timestamp}${random}`, 10);
+  
+    return uniqueId;
+  }
+
 
   async create(data: any): Promise<{ user?: User; message?: string }> {
     const idd=uuidv4()
@@ -41,7 +82,7 @@ export class AuthService {
     return { message: 'Email already exists. Please choose a different email.' };
   }else{
   const newUser = await this.userRepository.save({
-    id: this.uuidv4ToInt(idd),
+    id: this.generateUniqueId(),
     ...data
   });
 
@@ -49,6 +90,8 @@ export class AuthService {
   return { user: newUser, message: 'User created successfully.' };
   }
   }
+
+  // improve error handling 
 
   // improve error handling 
   async findOne(email: string): Promise<User | undefined> {
