@@ -168,19 +168,19 @@ export class BlService {
         return items;
       }
       
-    
+   
 
       async getBlByDestinataire(userId: number,nomDest:string , options: IPaginationOptions):Promise<Bl[]>{
         const queryBuilder = this.blRepository.createQueryBuilder('bl');
-        queryBuilder.where('bl.userId = :userId AND bl.nomDest = :dest', {userId, dest: nomDest });
+        queryBuilder.where('bl.userId = :userId AND bl.nom_prenom = :dest', {userId, dest: nomDest });
         const paginationResult = await paginate<Bl>(queryBuilder, options);
         const items: Bl[] = paginationResult.items;
         return items;    
         }
 
-        async getBlByName(userId: number ,blname:string , options: IPaginationOptions):Promise<Bl[]>{
+        async getBlByGove(userId: number ,governorate:string , options: IPaginationOptions):Promise<Bl[]>{
           const queryBuilder = this.blRepository.createQueryBuilder('bl');
-          queryBuilder.where('bl.userId = :userId AND bl.gov= :name', {userId, name: blname });
+          queryBuilder.where('bl.userId = :userId AND bl.governorate= :name', {userId, name: governorate });
           const paginationResult = await paginate<Bl>(queryBuilder, options);
           const items: Bl[] = paginationResult.items;
           return items;          

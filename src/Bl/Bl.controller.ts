@@ -163,10 +163,7 @@ export class BlController {
         const quantite=1. //bl.quantite.toString();
 
         const tableQuantite=quantite.toString();
-        const montant=(bl.cr_bt*quantite).toString();
-
-        const prixTot=(bl.cr_bt*quantite+user.fraisLivraison).toString();//prixLiv =userFrais
-
+       
         const addDivider = (x1, y1, x2, y2) => {
           pdfDoc
             .createPage([x2 - x1, 2]) // Assuming the line height is 2 (adjust as needed)
@@ -182,7 +179,35 @@ export class BlController {
         const addPadding = (text, x, y, options) => {
           pdfDoc.text(text, { x: x + 5, y, ...options }); // Adjust padding as needed
         };
+
+        const name=(await this.BlService.findOne(idBl)).blname;
         
+        let montant,prixTot,montant2,tva,ttc;
+
+        if (name.startsWith('excel')){
+
+           montant=((bl.cr_bt-user.fraisLivraison)*quantite).toString();
+           prixTot=(bl.cr_bt*quantite).toString();
+           montant2=(((bl.cr_bt*quantite))*0.81).toString();
+           tva=(((bl.cr_bt*quantite))*0.19).toString();
+           ttc=(bl.cr_bt*quantite).toString();
+
+        }else{  
+          
+          
+           montant=(bl.cr_bt*quantite).toString();//cr_bt-user.livraison 
+
+           prixTot=(bl.cr_bt*quantite+user.fraisLivraison).toString();//prixLiv =userFrais
+  
+          
+           montant2=((bl.cr_bt*quantite)+user.fraisLivraison).toString();//montnat2*91%
+    
+           tva=(((bl.cr_bt*quantite)+user.fraisLivraison)*0.19).toString();//à demandé 
+    
+    
+           ttc=((bl.cr_bt*quantite)+user.fraisLivraison+tva).toString();//somme montan2+tva
+        }
+
 
         pdfDoc.font('Helvetica-Bold')
           // requires 
@@ -246,9 +271,9 @@ export class BlController {
 
           pdfDoc.fontSize(9)
           .font('Helvetica')
-          .text('Transporteur', { align: 'left', continued: true }) // Set font size to 12
+          .text('Matricule Fiscale: 1667460L/AM/000', { align: 'left', continued: true }) // Set font size to 12
             .text('Date d"enlévement: Date', { align: 'right' })
-            .text('Téléphone', { align: 'left', continued: true }) // Set font size to 12
+            .text('Téléphone: 54305004 ', { align: 'left', continued: true }) // Set font size to 12
             .text('codeQR', { align: 'right'  })
             .moveDown();
 
@@ -317,13 +342,11 @@ export class BlController {
       .moveDown(); 
 
       pdfDoc.y = recyPosition+length+20;
+
+     
+  
+   
     
-      const montant2=((bl.cr_bt*quantite)+user.fraisLivraison).toString();
-
-      const tva=((bl.cr_bt*quantite)+user.fraisLivraison)*0.19;
-
-
-      const ttc=((bl.cr_bt*quantite)+user.fraisLivraison+tva).toString();
 
       
 
@@ -479,7 +502,7 @@ export class BlController {
   @Get(':id/file')
   async downloadFile(@Param('id') id: number, @Res() res: Response) {
     // Assume files are stored in a directory named 'downloads'
-    const directoryPath = join(__dirname,'..','..' ,'Downloads');
+    const directoryPath = join(process.cwd(), '../BonDeLivraison');
 
     // Get the list of files in the directory
     const files = readdirSync(directoryPath);
@@ -514,8 +537,8 @@ export class BlController {
     await this.generatePdf(bl.id,res);
     
     
-    const directoryPath = join(__dirname,'..','..' ,'Downloads');
-    const files = readdirSync(directoryPath);
+    const directoryPath = join(process.cwd(), '../BonDeLivraison');
+        const files = readdirSync(directoryPath);
 
     // Find the file that matches the given id in its name
     const filename = files.find((file) => file.startsWith(`${id}-`));
@@ -600,7 +623,7 @@ export class BlController {
       route: `${userId}/${name}/getAllBlByName`, 
     };
 
-  return this.BlService.getBlByName(userId,name, options);
+  return this.BlService.getBlByGove(userId,name, options);
 }
 
 @Get(':idUser/getAllBlByUserFilter/:page/:limit')
