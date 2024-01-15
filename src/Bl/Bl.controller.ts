@@ -97,17 +97,66 @@ export class BlController {
         const pdfDoc =new PDFDocument({ margin: 30, size: 'A4', });
 
 
+
+
+// draw some text
+
+const image =user.logo;
+const x = 50;
+const y = 150;
+
+const imagePath = path.resolve(__dirname, '..', '..', 'uploads', image);
+
+
+
+       let mosntant 
+
+      mosntant=((bl.quantite*bl.cr_bt)+user.fraisLivraison).toString();
+        // Coordinates for the center
+        
+
+ pdfDoc.fontSize(11)
+        .text(' ')
+        .text(`CR: ${mosntant}`,250,30)
+        .text(`Information Déstinateur: `,{align:'left'})
+        .text(`Nom:${bl.nom_prenom}`,{align:'left'})
+        .text(`Tel:${bl.tel1}`,{align:'left'})
+        .text(`Adress:${bl.adresse}`,{align:'left'})
+        .text(`Dscription: ${bl.description}`)
+        .moveDown();
+
+
+
+        pdfDoc
+          .text("Référence transporteur",20,20)
+          .moveDown();
+        // Information Destinataire
+    pdfDoc.lineWidth(2)
+      .moveTo(50,50 )
+      .rect(20, 35,100, 30, 40)
+      .stroke()
+      .moveDown(); 
+ 
+
+ 
+        // Information Expediteur
+        pdfDoc.fontSize(11)
+        .text(' ')
+        .text(' ')
+        .text(`Information Expediteur`)
+        .text(`Nom:${user.nom}`)
+        .text(`MF:${user.matriculeFiscale}` )  
+        .text(`Adress:${user.adress}`)  
+        .text(`Gouvernorat:${user.gover}`)
+        .text('',{align:'left'})
+        .moveDown()
+     
         const leftColumnX = 50;
         const columnGap = 50;  // Adjust the gap between columns
         const rightColumnX = leftColumnX + columnGap;  // Calculate the X-coordinate for the right column
         const textOptions = {font:'Times-Roman',fontSize: 12};
 
-        const image =user.logo;
-        const x = 50;
-        const y = 150;
-
-        const imagePath = path.resolve(__dirname, '..', '..', 'uploads', image);
-        
+  
 
         const xUpperRight = pdfDoc.page.width - 120; // Adjust as needed
         const yUpperRight = 10; // Adjust as needed
@@ -115,7 +164,35 @@ export class BlController {
         // Coordinates for the center
         const xCenter = pdfDoc.page.width / 2;
         const yCenter = pdfDoc.y;
-        
+        pdfDoc.image(imagePath, 20,200, { width: 80 }).text(`${user.nom}`)
+     
+        pdfDoc.fontSize(11)
+          .font('Helvetica')
+          .text(`Bon de Livraison No: ${bl.external_ref}`,400,200)
+          .text("Date d'enlévement:dat",{align:'center'})// Set font size to 18
+            .moveDown();
+
+        pdfDoc.text(`Information Destinateur`,20,300)
+        .text(`Nom:${bl.nom_prenom}`)
+       .text(`Tel:${bl.tel1}`)
+        .text(`Address:${bl.adresse}`)
+
+
+        pdfDoc.fontSize(9)
+          .font('Helvetica')
+          .text('Livreur:', { align: 'left'}) // Set font size to 12
+            .text('Code livreur:')
+            .moveDown();
+         //y el ktiba
+
+
+         pdfDoc.font('Helvetica-Bold')
+          // requires
+
+         pdfDoc.fontSize(7)  
+          .text("`Total Piéces= ${bl.quantite}`", { align: 'left',
+          })
+          .moveDown()        
 
         const formattedDate = bl.dateBl.toLocaleDateString('en-US', {
           year: 'numeric',
@@ -123,37 +200,12 @@ export class BlController {
           day: '2-digit',
         });
 
-        pdfDoc
-          .text(`Bon de Livraison No: ${bl.external_ref}`, { align: 'center', ...textOptions })
-          .text(`Date d'enlévement:${formattedDate}`, { align: 'center',continued:true, ...textOptions })
-          .image(imagePath, xUpperRight, yUpperRight, { width: 80 })
-          .text(' ',{align:'center'})
-          .moveDown()
+        pdfDoc.y=500;
+
+     
         // Information Destinataire
   
         // Information Expediteur
-        pdfDoc.fontSize(10)
-        .text(' ',{align:'center'})
-        .text(' ',{align:'center'})
-        .text(`Information Expediteur`, {continued:true })
-        .text(`Information Destinateur`,{align:'right' })
-        .text(`Nom:${user.nom}`, {continued:true, align: 'left' })
-        .text(`Nom:${bl.nom_prenom}`,{align:'right' })
-        .text(`MF:${user.matriculeFiscale}`, {continued:true, align: 'left'} )  
-        .text(`Tel:${bl.tel1}`,{align:'right' })
-        .text(`Adress:${user.adress}`, {continued:true, align: 'left' })  
-        .text(`Address:${bl.adresse}`,{align:'right' })
-        .text(`Gouvernorat:${user.gover}` ,{continued:true, align: 'left' })
-        .text('',{align:'left'})
-        .moveDown()
-     
-        // Référence transportaur
-        pdfDoc
-        .text(' ',{align:'left'})
-        .text('Référence transporteur', { align: 'left', ...textOptions })
-        .moveDown();
-        // Now add content to the right colum
-
         const desc=bl.description.toString();
 
         const prix=bl.cr_bt.toString();
@@ -208,7 +260,6 @@ export class BlController {
            ttc=((bl.cr_bt*quantite)+user.fraisLivraison+tva).toString();//somme montan2+tva
         }
 
-
         pdfDoc.font('Helvetica-Bold')
           // requires 
         const table = {
@@ -258,147 +309,7 @@ export class BlController {
             .moveDown();*/
 
 
-          pdfDoc.fontSize(9)
-          .font('Helvetica')
-            .text(`Date date a partir de date`, { align: 'left'}) // Set font size to 14
-            .text(' ', { align: 'left' })
-            .moveDown();
-
-          pdfDoc.fontSize(9)
-          .font('Helvetica')
-          .text(`Bon de Livraison No: ${bl.external_ref}`, { align: 'center'}) // Set font size to 18
-            .moveDown();
-
-          pdfDoc.fontSize(9)
-          .font('Helvetica')
-          .text('Matricule Fiscale: 1667460L/AM/000', { align: 'left', continued: true }) // Set font size to 12
-            .text('Date d"enlévement: Date', { align: 'right' })
-            .text('Téléphone: 54305004 ', { align: 'left', continued: true }) // Set font size to 12
-            .text('codeQR', { align: 'right'  })
-            .moveDown();
-
-         pdfDoc.lineWidth(2);
-         //position
-         const recyPosition = (pdfDoc.page.height/2)+40;//3aml 3al y =tul el page
-         
-         //Mesures 
-         const widthShape=pdfDoc.page.width-40//3uredh
-         const length=pdfDoc.page.height/7//tul
-
-
-         const xWidth=pdfDoc.page.width
-         const line=pdfDoc.page.width/2
-         const yline=length+460
-
-         //y el ktiba
-
-         const text2 = [
-          `Nom:${user.nom}`,
-          `MF:${user.matriculeFiscale}`,
-          `Adress:${user.gover}`,
-          `Gouvernorat:${user.gover}`
-        ];
         
-        const text3 = [
-          `Nom:${bl.nom_prenom}`,
-          `Tel:${bl.tel1}`,
-          `Address:${bl.adresse}`
-        ];
-        
-        const textTitle2 = 'Information Expediteur';
-        const textTitle3 = 'Information Destinateur';
-        
-        const text = `${text2.join('\n')}\n\n\n${text3.join('\n')}`;
-        
-        pdfDoc.y = recyPosition + 10;
-        
-        pdfDoc
-          .fontSize(12)
-          .font('Helvetica-Bold')
-          .text(textTitle2, { align: 'left', continued: true })
-          .text('                                                     ', {continued: true})
-          .text(textTitle3, { align: 'justify' });
-        pdfDoc
-          .fontSize(12)
-          .font('Helvetica')
-          .text(text, {
-            x: 30,
-            columns: 2,
-            columnGap: 80,
-            height: 85,
-            align: 'justify'
-          });
-        
-     
-       
-      pdfDoc
-      .moveTo(line, recyPosition)
-      .lineTo(line, yline)
-      .lineJoin('round')
-      .roundedRect(20, recyPosition, widthShape, length, 15)
-      .stroke()
-      .moveDown()
-      .moveDown()
-      .moveDown(); 
-
-      pdfDoc.y = recyPosition+length+20;
-
-     
-  
-   
-    
-
-      
-
-      const table2 = {
-        title: "",
-        headers: [
-         { label: "Description",headerColor:"#1765d1", headerOpacity:1  },
-         { label: "Montant",headerColor:"#1765d1", headerOpacity:1 },
-       ],
-        rows: [
-          [desc,montant2],
-          ["TVA(19%)",tva],
-          ["Total Montant TTC",ttc],
-       ],
-      };
-
-      const columnWidths = [440, 100];
-
-      const addVerticalLine = (x, y1, y2, color = rgb(0, 0, 0), thickness = 1) => {
-        pdfDoc.drawLine({
-          start: { x, y: y1 },
-          end: { x, y: y2 },
-          color,
-          thickness,
-        });
-      };
-
-      
-
-      pdfDoc.moveDown()
-      .moveDown()
-      .moveDown()
-      .table( table2, { 
-      //   A4 595.28 x 841.89 (portrait) (about width sizes)
-      //  width: 300,
-         columnsSize: [ 440, 100 ],
-         prepareHeader: () => pdfDoc.fontSize(10)
-         .fill('black'),
-         prepareRow: (row, indexColumn, indexRow, rectRow) => {
-           pdfDoc.fontSize(10).font("Helvetica");
-           indexColumn === 0 && pdfDoc.addBackground(rectRow, 'grey', 0.15);
-           
-         },
-        
-      }); 
-
-      pdfDoc.moveDown(pdfDoc.height)
-      .fontSize(9)
-          .font('Times-Italic')
-          .text(`Signatute`, { align: 'right'}) // Set font size to 18
-          
-
         //pdfDoc.text(`Destinataire Data:\n${JSON.stringify(destinataire)}`);
 
         const date = new Date();
