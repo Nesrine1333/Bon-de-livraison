@@ -106,12 +106,12 @@ const x = 50;
 const y = 150;
 
 const imagePath = path.resolve(__dirname, '..', '..', 'uploads', image);
-
+const imageScoiteoath = path.resolve(__dirname,'..', '..', 'uploads', 'jax.png');
 
 
        let mosntant 
 
-      mosntant=((bl.quantite*bl.cr_bt)+user.fraisLivraison).toString();
+      mosntant=((1*bl.cr_bt)+user.fraisLivraison).toString();
         // Coordinates for the center
         
 
@@ -132,8 +132,8 @@ const imagePath = path.resolve(__dirname, '..', '..', 'uploads', image);
           .moveDown();
         // Information Destinataire
     pdfDoc.lineWidth(2)
-      .moveTo(50,50 )
-      .rect(20, 35,100, 30, 40)
+      .moveTo(50,50 ).image(imageScoiteoath,20,40, { width: 80 })
+      // .rect(20, 35,100, 30, 40)
       .stroke()
       .moveDown(); 
  
@@ -142,43 +142,37 @@ const imagePath = path.resolve(__dirname, '..', '..', 'uploads', image);
         // Information Expediteur
         pdfDoc.fontSize(11)
         .text(' ')
-        .text(' ')
+        .text(' ',20,140)
         .text(`Information Expediteur`)
         .text(`Nom:${user.nom}`)
         .text(`MF:${user.matriculeFiscale}` )  
         .text(`Adress:${user.adress}`)  
         .text(`Gouvernorat:${user.gover}`)
         .text('',{align:'left'})
-        .moveDown()
+        .moveDown();
      
-        const leftColumnX = 50;
-        const columnGap = 50;  // Adjust the gap between columns
-        const rightColumnX = leftColumnX + columnGap;  // Calculate the X-coordinate for the right column
-        const textOptions = {font:'Times-Roman',fontSize: 12};
-
-  
-
-        const xUpperRight = pdfDoc.page.width - 120; // Adjust as needed
-        const yUpperRight = 10; // Adjust as needed
-        
-        // Coordinates for the center
-        const xCenter = pdfDoc.page.width / 2;
-        const yCenter = pdfDoc.y;
-        pdfDoc.image(imagePath, 20,200, { width: 80 }).text(`${user.nom}`)
+ 
+        pdfDoc.image(imagePath,20,250, { width: 150 }).moveDown().text(`       ${user.nom}`, 50,360).moveDown();
      
+        const dateBl=bl.dateBl
+        const day1 = dateBl.getDate().toString().padStart(2, '0');
+          const month2 = (dateBl.getMonth() + 1).toString().padStart(2, '0'); // Note: Months are zero-based
+          const year2 = dateBl.getFullYear();
+
+        const formattedDate2 = `${day1}/${month2}/${year2}`;
         pdfDoc.fontSize(11)
           .font('Helvetica')
-          .text(`Bon de Livraison No: ${bl.external_ref}`,400,200)
-          .text("Date d'enlévement:dat",{align:'center'})// Set font size to 18
+          .text(`Bon de Livraison No: ${bl.external_ref}`,400,250)
+          .text(`Date d'enlévement:${formattedDate2}`,{align:'center'})// Set font size to 18
             .moveDown();
 
-        pdfDoc.text(`Information Destinateur`,20,300)
+        pdfDoc.text(`Information Destinateur`,20,420)
         .text(`Nom:${bl.nom_prenom}`)
        .text(`Tel:${bl.tel1}`)
         .text(`Address:${bl.adresse}`)
 
 
-        pdfDoc.fontSize(9)
+        pdfDoc.fontSize(11)
           .font('Helvetica')
           .text('Livreur:', { align: 'left'}) // Set font size to 12
             .text('Code livreur:')
@@ -187,12 +181,7 @@ const imagePath = path.resolve(__dirname, '..', '..', 'uploads', image);
 
 
          pdfDoc.font('Helvetica-Bold')
-          // requires
-
-         pdfDoc.fontSize(7)  
-          .text("`Total Piéces= ${bl.quantite}`", { align: 'left',
-          })
-          .moveDown()        
+          // requires      
 
         const formattedDate = bl.dateBl.toLocaleDateString('en-US', {
           year: 'numeric',
@@ -200,7 +189,7 @@ const imagePath = path.resolve(__dirname, '..', '..', 'uploads', image);
           day: '2-digit',
         });
 
-        pdfDoc.y=500;
+        pdfDoc.y=540;
 
      
         // Information Destinataire
@@ -295,7 +284,7 @@ const imagePath = path.resolve(__dirname, '..', '..', 'uploads', image);
          }); 
 
          pdfDoc.fontSize(7)  
-          .text(`Total Piéces= ${bl.quantite}`, { align: 'left',
+          .text(`Total Piéces= 1`, { align: 'left',
           })
           .moveDown();
         
