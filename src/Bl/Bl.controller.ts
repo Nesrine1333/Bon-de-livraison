@@ -126,7 +126,6 @@ export class BlController {
         pdfDoc
           .text(`Bon de Livraison No: ${bl.external_ref}`, { align: 'center', ...textOptions })
           .text(`Date d'enlévement:${formattedDate}`, { align: 'center',continued:true, ...textOptions })
-          .image(imagePath, xUpperRight, yUpperRight, { width: 80 })
           .text(' ',{align:'center'})
           .moveDown()
         // Information Destinataire
@@ -135,15 +134,15 @@ export class BlController {
         pdfDoc.fontSize(10)
         .text(' ',{align:'center'})
         .text(' ',{align:'center'})
-        .text(`Information Expediteur`, {continued:true })
-        .text(`Information Destinateur`,{align:'right' })
-        .text(`Nom:${user.nom}`, {continued:true, align: 'left' })
-        .text(`Nom:${bl.nom_prenom}`,{align:'right' })
-        .text(`MF:${user.matriculeFiscale}`, {continued:true, align: 'left'} )  
-        .text(`Tel:${bl.tel1}`,{align:'right' })
-        .text(`Adress:${user.adress}`, {continued:true, align: 'left' })  
-        .text(`Address:${bl.adresse}`,{align:'right' })
-        .text(`Gouvernorat:${user.gover}` ,{continued:true, align: 'left' })
+        .text(`Information Expéditeur`, {continued:true })
+        .text(`Information Destinataire`,{align:'right' })
+        .text(`Nom de l'expéditeur:${user.nom}`, {continued:true, align: 'left' })
+        .text(`Nom de destinataire:${bl.nom_prenom}`,{align:'right' })
+        .text(`Adresse:${user.adress}`, {continued:true, align: 'left' })  //adrees mf tel 
+        .text(`Tél:${bl.tel1}`,{align:'right' })
+        .text(`M.F:${user.matriculeFiscale}`, {continued:true, align: 'left'} ) 
+        .text(`Adresse:${bl.adresse}`,{align:'right' })
+        .text(`Tél:${user.phoneNumber}` ,{continued:true, align: 'left' })
         .text('',{align:'left'})
         .moveDown()
      
@@ -189,7 +188,7 @@ export class BlController {
            montant=((bl.cr_bt-user.fraisLivraison)*quantite).toString();
            prixTot=(bl.cr_bt*quantite).toString();
            montant2=(((bl.cr_bt*quantite))*0.81).toString();
-           tva=(((bl.cr_bt*quantite))*0.19).toString();
+           tva=(((bl.cr_bt * quantite) * 0.19).toFixed(3)).toString();
            ttc=(bl.cr_bt*quantite).toString();
 
         }else{  
@@ -212,7 +211,7 @@ export class BlController {
         pdfDoc.font('Helvetica-Bold')
           // requires 
         const table = {
-           title: "Details",
+           title: "Désignation",
            divider: {
              header: { disabled: false},
              horizontal: { disabled: false, width: 1, opacity: 1 },
@@ -221,20 +220,16 @@ export class BlController {
            },
            headers: [
             { label: "Description",headerColor:"#4253ed", headerOpacity:1  },
-            { label: "Prix" ,headerColor:"#4253ed", headerOpacity:1},
-            { label: "Quantité",headerColor:"#4253ed", headerOpacity:1 },
-            { label: "Montant",headerColor:"#4253ed", headerOpacity:1 },
+            { label: "TTC total",headerColor:"#4253ed", headerOpacity:1 },
           ],
            rows: [
-             [desc, prix, tableQuantite,montant],
-             ["Livraison", "", "",Livraison],
-             ["Total", "", "",prixTot],
+             [`${bl.description}`,prixTot]
           ],
          };
          pdfDoc.table( table, { 
          //   A4 595.28 x 841.89 (portrait) (about width sizes)
          //  width: 300,
-            columnsSize: [ 300, 100, 70,70 ],
+            columnsSize: [440,100 ],
             prepareHeader: () => pdfDoc.fontSize(10)
             .fill('black'),
             prepareRow: (row, indexColumn, indexRow, rectRow) => {
@@ -243,10 +238,7 @@ export class BlController {
             },
          }); 
 
-         pdfDoc.fontSize(7)  
-          .text(`Total Piéces= ${bl.quantite}`, { align: 'left',
-          })
-          .moveDown();
+    
         
 
          /* const width = pdfDoc.widthOfString('Dates pervisionelles');
@@ -257,38 +249,35 @@ export class BlController {
           .text(`Dates pervisionelles`, { align: 'left'}) // Set font size to 16
             .moveDown();*/
 
-
-          pdfDoc.fontSize(9)
-          .font('Helvetica')
-            .text(`Date date a partir de date`, { align: 'left'}) // Set font size to 14
-            .text(' ', { align: 'left' })
-            .moveDown();
+pdfDoc.y=300;
+        
 
           pdfDoc.fontSize(9)
           .font('Helvetica')
           .text(`Bon de Livraison No: ${bl.external_ref}`, { align: 'center'}) // Set font size to 18
             .moveDown();
 
-          pdfDoc.fontSize(9)
+          pdfDoc.fontSize(10)
           .font('Helvetica')
-          .text('Matricule Fiscale: 1667460L/AM/000', { align: 'left', continued: true }) // Set font size to 12
-            .text('Date d"enlévement: Date', { align: 'right' })
-            .text('Téléphone: 54305004 ', { align: 'left', continued: true }) // Set font size to 12
+          .text('JAX delivery service', { align: 'left', continued: true }) // Set font size to 12
+            .text(`Code: code`, { align: 'right' })
+            .text('Téléphone: 31 170 140 ', { align: 'left', continued: true }) // Set font size to 12
             .text('codeQR', { align: 'right'  })
+            .text('Adresse:', { align: 'left', continued: true }).text('Av. Taieb Mhiri 40 Bardo Tunis',{align:'left'}) 
             .moveDown();
 
          pdfDoc.lineWidth(2);
          //position
-         const recyPosition = (pdfDoc.page.height/2)+40;//3aml 3al y =tul el page
+         const recyPosition = (pdfDoc.page.height/2)-20;//3aml 3al y =tul el page
          
          //Mesures 
          const widthShape=pdfDoc.page.width-40//3uredh
-         const length=pdfDoc.page.height/7//tul
+         const length=pdfDoc.page.height/9//tul
 
 
          const xWidth=pdfDoc.page.width
          const line=pdfDoc.page.width/2
-         const yline=length+460
+         const yline=length+400
 
          //y el ktiba
 
@@ -296,7 +285,7 @@ export class BlController {
           `Nom:${user.nom}`,
           `MF:${user.matriculeFiscale}`,
           `Adress:${user.gover}`,
-          `Gouvernorat:${user.gover}`
+          `Téléphone:${user.phoneNumber}`
         ];
         
         const text3 = [
@@ -305,8 +294,8 @@ export class BlController {
           `Address:${bl.adresse}`
         ];
         
-        const textTitle2 = 'Information Expediteur';
-        const textTitle3 = 'Information Destinateur';
+        const textTitle2 = 'Information Expéditeur';
+        const textTitle3 = 'Information Destinataire';
         
         const text = `${text2.join('\n')}\n\n\n${text3.join('\n')}`;
         
@@ -316,15 +305,15 @@ export class BlController {
           .fontSize(12)
           .font('Helvetica-Bold')
           .text(textTitle2, { align: 'left', continued: true })
-          .text('                                                     ', {continued: true})
+          .text('                                                 ', {continued: true})
           .text(textTitle3, { align: 'justify' });
         pdfDoc
           .fontSize(12)
           .font('Helvetica')
           .text(text, {
-            x: 30,
+            x: 40,
             columns: 2,
-            columnGap: 80,
+            columnGap: 50,
             height: 85,
             align: 'justify'
           });
@@ -341,7 +330,7 @@ export class BlController {
       .moveDown()
       .moveDown(); 
 
-      pdfDoc.y = recyPosition+length+20;
+      pdfDoc.y = recyPosition+length+5;
 
      
   
